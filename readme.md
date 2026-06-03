@@ -453,7 +453,7 @@ MIT © 2025 GridWise
 
 <div align="center">
 
-Built with ⚡ by someone who actually read the docs
+Built with ⚡ by Vivek Tyagi
 
 *"Quality Data — On Time — Every Time"*
 
