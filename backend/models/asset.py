@@ -4,7 +4,7 @@ from sqlalchemy import Float, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.database import Base
+from database import Base
 from models.enums import AssetType
 
 

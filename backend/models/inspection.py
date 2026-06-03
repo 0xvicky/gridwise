@@ -1,10 +1,10 @@
 from uuid import uuid4
-
-from sqlalchemy import Date, ForeignKey, Integer, JSON
+from datetime import date
+from sqlalchemy import Date, ForeignKey, Integer, JSON, String
 from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.database import Base
+from database import Base
 from models.enums import ValidationStatus
 
 
@@ -16,8 +16,8 @@ class Inspection(Base):
     )
     asset_id: Mapped[UUID] = mapped_column(ForeignKey("assets.id"), nullable=False)
     pilot_id: Mapped[str]
-    capture_date: Mapped[Date]
-    capture_types: Mapped[list[str]] = mapped_column(ARRAY(str))
+    capture_date: Mapped[date] = mapped_column(Date)
+    capture_types: Mapped[list[str]] = mapped_column(ARRAY(String))
     validation_status: Mapped[ValidationStatus]
     validation_notes: Mapped[dict] = mapped_column(JSON, default=dict)
     health_score: Mapped[int | None] = mapped_column(Integer, nullable=True)

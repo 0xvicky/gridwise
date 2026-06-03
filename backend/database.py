@@ -2,7 +2,9 @@ import os
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
+from dotenv import load_dotenv
 
+load_dotenv()
 DB_URL = os.getenv("DB_URL")
 
 if not DB_URL:
