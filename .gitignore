@@ -1,0 +1,90 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Virtual Environment
+
+venv/
+.env/
+.venv/
+
+# Environment Variables
+
+.env
+.env.*
+
+# IDEs
+
+.vscode/
+.idea/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
+
+# SQLite
+
+*.sqlite3
+
+# Pytest
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mypy
+
+.mypy_cache/
+
+# Ruff
+
+.ruff_cache/
+
+# Alembic
+
+alembic/versions/**pycache**/
+
+# Uploaded Files / Local Storage
+
+storage/
+
+# Build
+
+dist/
+build/
+*.egg-info/
+
+# FastAPI
+
+.fastapi/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Temporary Files
+
+tmp/
+temp/
+
+# Docker
+
+*.pid
+
+# VSCode testing
+
+.pytest_cache/
+
+# macOS
+
+.AppleDouble
+.LSOverride
