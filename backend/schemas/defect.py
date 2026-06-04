@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from models.enums import DefectType, Severity
 from uuid import UUID
-from models.enums import AnalysisStatus
 
 
 class DefectDescription(BaseModel):
@@ -16,7 +15,7 @@ class DefectDescription(BaseModel):
 
 class DefectResponse(BaseModel):
     inspection_id: UUID
-    
+
     defects: list[DefectDescription]
 
     model_config = {"from_attributes": True}
