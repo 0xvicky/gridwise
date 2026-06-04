@@ -7,6 +7,7 @@ from schemas.inspection import (
     ValidationResponse,
     ValidationFileResult,
 )
+from services.ai_detection import analyze_inspection
 from services.localstore import validate_and_store
 from models.inspection import Inspection
 from models.enums import ValidationStatus, AnalysisStatus
@@ -80,8 +81,11 @@ async def inspection_upload(
         inspection.validation_notes = {"failed_files": failed_files}
     else:
         inspection.validation_status = ValidationStatus.PASSED
+
+    inspection.analysis_status = AnalysisStatus.PROCESSING
     await db.commit()
     await db.refresh(inspection)
+    await analyze_inspection(inspection, db)
     return InspectionUploadResponse(
         inspection_id=inspection.id, validation_status=inspection.validation_status
     )

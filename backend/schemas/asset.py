@@ -11,6 +11,8 @@ class AssetCreate(BaseModel):
     zone: str
     installed_year: int
 
+    model_config = {"from_attributes": True}
+
 
 class AssetResponse(BaseModel):
     id: UUID

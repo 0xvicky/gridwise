@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 from PIL import Image
 import asyncio
-from models.enums import DefectType, Severity
+from models.enums import DefectType, Severity, AnalysisStatus
 from models.defects import Defects
+from models.inspection import Inspection
 
 load_dotenv()
 
@@ -34,7 +35,7 @@ def convert_image_to_base64(
     }
 
 
-def mock_detect_defects() -> dict | None:
+def mock_detect_defects(image_data: str) -> dict | None:
     return {
         "defect_type": DefectType.CORROSION,
         "severity": Severity.CRITICAL,
@@ -44,14 +45,14 @@ def mock_detect_defects() -> dict | None:
     }
 
 
-async def analyze_inspection(inspection_id: UUID, asset_id: UUID, db: AsyncSession):
-    print("this")
+async def analyze_inspection(inspection: Inspection, db: AsyncSession):
     # access all the files from the local storage
-    dir = Path(os.getenv("SAVE_DIR")) / str(asset_id) / str(inspection_id)
+    dir = Path(os.getenv("SAVE_DIR")) / str(inspection.asset_id) / str(inspection.id)
     print(dir)
     # iterate over the files and get the defect response from ai
     defects = []
     deduplicated = {}
+    health_score = 100
     for file in Path(dir).rglob("*"):
         if file.is_file():
             base64img = await asyncio.to_thread(convert_image_to_base64, file)
@@ -67,9 +68,14 @@ async def analyze_inspection(inspection_id: UUID, asset_id: UUID, db: AsyncSessi
             deduplicated[key] = defect
     # add the defects to the db
     for defect in deduplicated.values():
-
+        if defect["severity"] == Severity.CRITICAL:
+            health_score -= 25
+        elif defect["severity"] == Severity.MAJOR:
+            health_score -= 15
+        else:
+            health_score -= 5
         new_defect = Defects(
-            inspection=inspection_id,
+            inspection=inspection.id,
             defect_type=defect["defect_type"],
             severity=defect["severity"],
             location_description=defect["location_description"],
@@ -83,4 +89,7 @@ async def analyze_inspection(inspection_id: UUID, asset_id: UUID, db: AsyncSessi
         )
         db.add(new_defect)
 
+    inspection.health_score = max(health_score, 0)
+    inspection.analysis_status = AnalysisStatus.COMPLETED
+    
     await db.commit()
