@@ -1,5 +1,5 @@
 import os
-from fastapi import APIRouter, UploadFile, Depends, File, Form
+from fastapi import APIRouter, UploadFile, Depends, File, Form, HTTPException
 from datetime import date
 from uuid import UUID
 from schemas.inspection import (
@@ -89,3 +89,18 @@ async def inspection_upload(
     return InspectionUploadResponse(
         inspection_id=inspection.id, validation_status=inspection.validation_status
     )
+
+
+@router.post("/{inspection_id}/report")
+async def generate_report(
+    inspection_id: UUID, db: AsyncSession = (Depends(get_async_db))
+):
+    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        raise HTTPException(status_code=404, detail="inspection not found")
+    if inspection.analysis_status != AnalysisStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="ai still processing")
+
+        # generate report
+        pass
