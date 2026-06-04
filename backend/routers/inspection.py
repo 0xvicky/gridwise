@@ -2,11 +2,16 @@ import os
 from fastapi import APIRouter, UploadFile, Depends, File, Form
 from datetime import date
 from uuid import UUID
-from schemas.inspection import InspectionUploadResponse
+from schemas.inspection import (
+    InspectionUploadResponse,
+    ValidationResponse,
+    ValidationFileResult,
+)
 from services.localstore import validate_and_store
 from models.inspection import Inspection
-from models.enums import ValidationStatus
+from models.enums import ValidationStatus, AnalysisStatus
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from database import get_async_db
 from pathlib import Path
 from dotenv import load_dotenv
@@ -14,6 +19,23 @@ from dotenv import load_dotenv
 router = APIRouter(prefix="/inspection", tags=["inspection"])
 
 load_dotenv()
+
+
+@router.get("/{inspection_id}/validation")
+async def get_files_status(
+    inspection_id: UUID, db: AsyncSession = Depends(get_async_db)
+):
+    result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
+    inspection = result.scalar_one_or_none()
+    if not inspection:
+        return {"error": "inspection not found"}
+
+    failed_files = inspection.validation_notes.get("failed_files", [])
+
+    return ValidationResponse(
+        inspection_id=inspection.id,
+        files=[ValidationFileResult(**file) for file in failed_files],
+    )
 
 
 @router.post("/upload", response_model=InspectionUploadResponse)
@@ -32,6 +54,7 @@ async def inspection_upload(
         capture_types=["visual"],
         validation_status=ValidationStatus.PENDING,
         validation_notes={},
+        analysis_status=AnalysisStatus.PENDING,
         health_score=None,
     )
 
@@ -44,13 +67,21 @@ async def inspection_upload(
     for file in files:
         status, reason = validate_and_store(file, SAVE_DIR)
         if not status:
-            failed_files.append({"filename": file.filename, "reason": reason})
+            failed_files.append(
+                {
+                    "file_name": file.filename,
+                    "status": ValidationStatus.FAILED.value,
+                    "reason": reason,
+                }
+            )
 
     if failed_files:
         inspection.validation_status = ValidationStatus.FAILED
-        inspection.validation_notes["failed_files"] = failed_files
-
-    inspection.validation_status = ValidationStatus.PASSED
+        inspection.validation_notes = {"failed_files": failed_files}
+    else:
+        inspection.validation_status = ValidationStatus.PASSED
     await db.commit()
     await db.refresh(inspection)
-    return 
+    return InspectionUploadResponse(
+        inspection_id=inspection.id, validation_status=inspection.validation_status
+    )

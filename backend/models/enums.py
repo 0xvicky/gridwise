@@ -39,3 +39,10 @@ class TicketStatus(str, Enum):
     OPEN = "open"
     IN_PROGRESS = "in_progress"
     CLOSED = "closed"
+
+
+class AnalysisStatus(str, Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"

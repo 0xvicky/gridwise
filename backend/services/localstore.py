@@ -7,8 +7,8 @@ import io
 
 def validate_file(file: UploadFile):
     ALLOWED_EXT = ["jpeg", "jpg", "png"]
-    MIN_WIDTH = 4000
-    MIN_HEIGHT = 3000
+    MIN_WIDTH = 400
+    MIN_HEIGHT = 300
 
     ext = Path(file.filename).suffix.lower().lstrip(".")
     # validate if valid extension

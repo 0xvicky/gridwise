@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
-from models.enums import ValidationStatus
+from models.enums import ValidationStatus, AnalysisStatus
 
 
 class Inspection(Base):
@@ -20,4 +20,5 @@ class Inspection(Base):
     capture_types: Mapped[list[str]] = mapped_column(ARRAY(String))
     validation_status: Mapped[ValidationStatus]
     validation_notes: Mapped[dict] = mapped_column(JSON, default=dict)
+    analysis_status: Mapped[AnalysisStatus]
     health_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
