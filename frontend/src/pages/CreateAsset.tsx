@@ -1,0 +1,165 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useCreateAsset } from '@/hooks/useAssets'
+import { Button, Card, CardHeader, CardTitle, CardContent, FormGroup, Label, Input, Select, Textarea } from '@/components'
+import { Alert } from '@/components/Loading'
+import { CreateAssetRequest } from '@/types'
+import { AssetType } from '@/types/enums'
+
+const CreateAsset: React.FC = () => {
+  const navigate = useNavigate()
+  const { mutate: createAsset, isPending } = useCreateAsset()
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [formData, setFormData] = useState<CreateAssetRequest>({
+    name: '',
+    asset_type: AssetType.TRANSMISSION_TOWER,
+    latitude: 0,
+    longitude: 0,
+    zone: '',
+    installed_year: new Date().getFullYear(),
+  })
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'latitude' || name === 'longitude' || name === 'installed_year' ? parseFloat(value) || 0 : value,
+    }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    createAsset(formData, {
+      onSuccess: () => {
+        setShowSuccess(true)
+        setTimeout(() => navigate('/assets'), 2000)
+      },
+    })
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-2xl"
+    >
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">Create Asset</h1>
+        <p className="mt-2 text-white">Register a new infrastructure asset</p>
+      </div>
+
+      {showSuccess && (
+        <Alert
+          type="success"
+          message="Asset created successfully! Redirecting..."
+          onClose={() => setShowSuccess(false)}
+        />
+      )}
+
+      <Card>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FormGroup>
+              <Label htmlFor="name">Asset Name *</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="e.g., Tower A-01"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label htmlFor="asset_type">Asset Type *</Label>
+              <Select
+                id="asset_type"
+                name="asset_type"
+                value={formData.asset_type}
+                onChange={handleChange}
+              >
+                <option value={AssetType.TRANSMISSION_TOWER}>Transmission Tower</option>
+                <option value={AssetType.OHE_RAIL}>OHE Rail</option>
+                <option value={AssetType.DISTRIBUTION_POLE}>Distribution Pole</option>
+              </Select>
+            </FormGroup>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormGroup>
+                <Label htmlFor="latitude">Latitude *</Label>
+                <Input
+                  id="latitude"
+                  name="latitude"
+                  type="number"
+                  placeholder="0.0000"
+                  step="0.0001"
+                  value={formData.latitude}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="longitude">Longitude *</Label>
+                <Input
+                  id="longitude"
+                  name="longitude"
+                  type="number"
+                  placeholder="0.0000"
+                  step="0.0001"
+                  value={formData.longitude}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormGroup>
+                <Label htmlFor="zone">Zone *</Label>
+                <Input
+                  id="zone"
+                  name="zone"
+                  placeholder="e.g., North Region"
+                  value={formData.zone}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="installed_year">Installed Year *</Label>
+                <Input
+                  id="installed_year"
+                  name="installed_year"
+                  type="number"
+                  placeholder="2024"
+                  value={formData.installed_year}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <Button type="submit" isLoading={isPending}>
+                Create Asset
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate('/assets')}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+export default CreateAsset

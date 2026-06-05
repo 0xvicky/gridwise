@@ -1,0 +1,53 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0a0e27 0%, #0f1535 100%);
+  color: #ffffff;
+  color-scheme: dark;
+}
+
+* {
+  transition: colors 0.2s;
+}
+
+/* Custom scrollbar - dark theme */
+::-webkit-scrollbar {
+  height: 0.5rem;
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1535;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2347;
+  border-radius: 0.375rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00d9ff;
+}
+
+/* Link styling */
+a {
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #00d9ff;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(0, 217, 255, 0.2);
+  color: #00d9ff;
+}
