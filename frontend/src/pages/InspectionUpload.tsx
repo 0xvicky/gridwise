@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Upload, CheckCircle2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Upload, CheckCircle2, X, FileImage } from 'lucide-react'
 import { useUploadInspection } from '@/hooks/useInspection'
 import { useAssets } from '@/hooks/useAssets'
-import { Button, Card, CardHeader, CardTitle, CardContent, FormGroup, Label, Input, Select } from '@/components'
-import { Alert, EmptyState } from '@/components/Loading'
+import { Button, Card, CardContent, FormGroup, Label, Input, Select } from '@/components'
 
 const InspectionUpload: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { data: assets } = useAssets()
   const { mutate: uploadInspection, isPending } = useUploadInspection()
-  
+
   const [assetId, setAssetId] = useState(searchParams.get('asset') || '')
   const [pilotId, setPilotId] = useState('')
   const [files, setFiles] = useState<File[]>([])
@@ -25,21 +24,17 @@ const InspectionUpload: React.FC = () => {
     setIsDragging(true)
   }
 
-  const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+  const handleDragLeave = () => setIsDragging(false)
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     setIsDragging(false)
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    setFiles((prev) => [...prev, ...droppedFiles])
+    setFiles((prev) => [...prev, ...Array.from(e.dataTransfer.files)])
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files)
-      setFiles((prev) => [...prev, ...selectedFiles])
+      setFiles((prev) => [...prev, ...Array.from(e.target.files!)])
     }
   }
 
@@ -57,9 +52,7 @@ const InspectionUpload: React.FC = () => {
         onSuccess: (data) => {
           setUploadSuccess(true)
           setUploadedInspectionId(data.inspection_id)
-          setTimeout(() => {
-            navigate(`/inspection/${data.inspection_id}`)
-          }, 3000)
+          setTimeout(() => navigate(`/inspection/${data.inspection_id}`), 3000)
         },
       }
     )
@@ -67,39 +60,41 @@ const InspectionUpload: React.FC = () => {
 
   if (uploadSuccess) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="max-w-2xl"
-      >
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200 }}
-            >
-              <CheckCircle2 className="h-12 w-12 text-green-600 mb-4" />
-            </motion.div>
-            <h2 className="text-2xl font-bold text-accent-cyan mb-2">Upload Successful!</h2>
-            <p className="text-white mb-6">Your inspection has been uploaded and is being processed.</p>
-            <p className="text-sm text-white mb-6">Inspection ID: {uploadedInspectionId}</p>
-            <p className="text-sm text-white">Redirecting to inspection details...</p>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <div className="mx-auto max-w-2xl">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-light">
+                <CheckCircle2 className="h-7 w-7 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold text-text-primary">Upload Successful</h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Your inspection has been uploaded and is being processed.
+              </p>
+              <p className="mt-4 font-mono text-xs text-text-secondary">
+                {uploadedInspectionId}
+              </p>
+              <p className="mt-6 text-xs text-text-secondary">
+                Redirecting to inspection details...
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     )
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="max-w-2xl"
-    >
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">Upload Inspection</h1>
-        <p className="mt-2 text-white">Upload images for drone inspection analysis</p>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-page-title text-text-primary">Upload Inspection</h1>
+        <p className="mt-2 text-base text-text-secondary">
+          Upload drone imagery for AI-powered defect analysis
+        </p>
       </div>
 
       <Card>
@@ -135,22 +130,26 @@ const InspectionUpload: React.FC = () => {
 
             <FormGroup>
               <Label>Images *</Label>
-              <motion.div
+              <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`relative rounded-lg border-2 border-dashed px-6 py-12 transition-colors ${
+                className={`relative rounded-card border-2 border-dashed px-6 py-14 transition-all duration-300 ${
                   isDragging
-                    ? 'border-primary-500 bg-dark-800'
-                    : 'border-gray-300 bg-dark-800 hover:border-gray-400'
+                    ? 'border-primary/40 bg-primary-light/50'
+                    : 'border-border bg-surface/50 hover:border-primary/20'
                 }`}
               >
                 <div className="text-center">
-                  <Upload className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                  <p className="text-lg font-medium text-white">Drag and drop images here</p>
-                  <p className="text-sm text-white">or</p>
-                  <label className="text-primary-600 hover:text-primary-700 cursor-pointer font-medium">
-                    select files
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-light">
+                    <Upload className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="text-sm font-medium text-text-primary">
+                    Drag and drop images here
+                  </p>
+                  <p className="mt-1 text-sm text-text-secondary">or</p>
+                  <label className="mt-2 inline-block cursor-pointer text-sm font-medium text-primary hover:text-primary-dark">
+                    browse files
                     <input
                       type="file"
                       multiple
@@ -160,35 +159,44 @@ const InspectionUpload: React.FC = () => {
                     />
                   </label>
                 </div>
-              </motion.div>
+              </div>
             </FormGroup>
 
-            {files.length > 0 && (
-              <FormGroup>
-                <Label>Selected Files ({files.length})</Label>
-                <div className="space-y-2">
-                  {files.map((file, idx) => (
-                    <motion.div
-                      key={`${file.name}-${idx}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="flex items-center justify-between rounded bg-dark-800 p-3"
-                    >
-                      <span className="text-sm text-white">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(idx)}
-                        className="text-xs text-red-600 hover:text-red-700 font-medium"
-                      >
-                        Remove
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
-              </FormGroup>
-            )}
+            <AnimatePresence>
+              {files.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <FormGroup>
+                    <Label>Selected Files ({files.length})</Label>
+                    <div className="space-y-2">
+                      {files.map((file, idx) => (
+                        <div
+                          key={`${file.name}-${idx}`}
+                          className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2.5"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileImage size={14} className="text-text-secondary" />
+                            <span className="text-sm text-text-primary">{file.name}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(idx)}
+                            className="text-text-secondary transition-colors hover:text-critical"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </FormGroup>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 border-t border-border pt-6">
               <Button
                 type="submit"
                 disabled={!assetId || !pilotId || files.length === 0}
@@ -196,18 +204,14 @@ const InspectionUpload: React.FC = () => {
               >
                 Upload Inspection
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate('/assets')}
-              >
+              <Button type="button" variant="secondary" onClick={() => navigate('/assets')}>
                 Cancel
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 

@@ -8,7 +8,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     <input
       ref={ref}
       className={clsx(
-        'flex h-10 rounded-lg border border-dark-600 bg-dark-800 px-3 py-2 text-sm text-white placeholder-gray-500 transition-all focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-opacity-50',
+        'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/40',
         className
       )}
       {...props}
@@ -25,7 +25,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     <select
       ref={ref}
       className={clsx(
-        'flex h-10 rounded-lg border border-dark-600 bg-dark-800 px-3 py-2 text-sm text-white transition-all focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-opacity-50',
+        'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary transition-colors focus-ring focus:border-primary/40',
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     <textarea
       ref={ref}
       className={clsx(
-        'flex rounded-lg border border-dark-600 bg-dark-800 px-3 py-2 text-sm text-white placeholder-gray-500 transition-all focus:border-accent-cyan focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-opacity-50',
+        'flex min-h-[100px] w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/40',
         className
       )}
       {...props}
@@ -70,7 +70,7 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => (
     <label
       ref={ref}
-      className={clsx('text-sm font-medium text-white', className)}
+      className={clsx('text-sm font-medium text-text-primary', className)}
       {...props}
     />
   )

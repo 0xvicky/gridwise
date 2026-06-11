@@ -1,5 +1,5 @@
 import api from './api'
-import { Asset, CreateAssetRequest } from '@/types'
+import { Asset, CreateAssetRequest, Inspection } from '@/types'
 
 export const assetsService = {
   getAll: async (): Promise<Asset[]> => {
@@ -9,6 +9,11 @@ export const assetsService = {
 
   getById: async (id: string): Promise<Asset> => {
     const response = await api.get(`/assets/${id}`)
+    return response.data
+  },
+
+  getInspections: async (id: string): Promise<Inspection[]> => {
+    const response = await api.get(`/assets/${id}/inspections`)
     return response.data
   },
 

@@ -1,91 +1,98 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { TicketStatus } from '@/types/enums'
 import { useTickets } from '@/hooks/useTickets'
-import { Button, Card, CardHeader, CardTitle, CardContent, Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@/components'
+import {
+  Button,
+  Card,
+  CardContent,
+  Table,
+  TableHead,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  PageHeader,
+} from '@/components'
 import { LoadingSpinner, Error, EmptyState } from '@/components/Loading'
 import { format } from 'date-fns'
+import { priorityStyles, ticketStatusStyles, formatLabel } from '@/lib/badges'
 
 const Tickets: React.FC = () => {
   const { data: tickets, isLoading, error, refetch } = useTickets()
   const [filter, setFilter] = useState<TicketStatus | 'all'>('all')
 
-  const filteredTickets = tickets?.filter(
-    (ticket) => filter === 'all' || ticket.status === filter
-  ) || []
+  const filteredTickets =
+    tickets?.filter((ticket) => filter === 'all' || ticket.status === filter) || []
 
   const statusCounts = {
     all: tickets?.length || 0,
-    [TicketStatus.OPEN]: tickets?.filter((t) => t.status === TicketStatus.OPEN).length || 0,
-    [TicketStatus.IN_PROGRESS]: tickets?.filter((t) => t.status === TicketStatus.IN_PROGRESS).length || 0,
-    [TicketStatus.CLOSED]: tickets?.filter((t) => t.status === TicketStatus.CLOSED).length || 0,
+    [TicketStatus.OPEN]:
+      tickets?.filter((t) => t.status === TicketStatus.OPEN).length || 0,
+    [TicketStatus.IN_PROGRESS]:
+      tickets?.filter((t) => t.status === TicketStatus.IN_PROGRESS).length || 0,
+    [TicketStatus.CLOSED]:
+      tickets?.filter((t) => t.status === TicketStatus.CLOSED).length || 0,
   }
 
-  const getStatusColor = (status: TicketStatus) => {
-    const colors = {
-      [TicketStatus.OPEN]: 'bg-red-500 bg-opacity-20 text-red-300',
-      [TicketStatus.IN_PROGRESS]: 'bg-accent-amber bg-opacity-20 text-accent-amber',
-      [TicketStatus.CLOSED]: 'bg-accent-green bg-opacity-20 text-accent-green',
-    }
-    return colors[status]
-  }
-
-  const getPriorityColor = (priority: string) => {
-    const colors: Record<string, string> = {
-      P1: 'bg-red-500 bg-opacity-20 text-red-300',
-      P2: 'bg-accent-amber bg-opacity-20 text-accent-amber',
-      P3: 'bg-accent-blue bg-opacity-20 text-accent-blue',
-    }
-    return colors[priority] || 'bg-dark-700 bg-opacity-50 text-white'
-  }
+  const filters: Array<{ key: TicketStatus | 'all'; label: string }> = [
+    { key: 'all', label: 'All' },
+    { key: TicketStatus.OPEN, label: 'Open' },
+    { key: TicketStatus.IN_PROGRESS, label: 'In Progress' },
+    { key: TicketStatus.CLOSED, label: 'Closed' },
+  ]
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">Tickets</h1>
-        <p className="mt-2 text-white">Manage maintenance and repair tickets</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Tickets"
+        description="Manage maintenance and repair tickets across your infrastructure"
+      />
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto">
-        {['all', TicketStatus.OPEN, TicketStatus.IN_PROGRESS, TicketStatus.CLOSED].map((status) => (
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {filters.map((item) => (
           <button
-            key={status}
-            onClick={() => setFilter(status as TicketStatus | 'all')}
-            className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-              filter === status
-                ? 'bg-gradient-to-r from-accent-blue to-accent-cyan text-white shadow-lg shadow-accent-cyan/30'
-                : 'bg-dark-700 text-white hover:text-accent-cyan hover:border-accent-cyan border border-dark-600'
+            key={item.key}
+            onClick={() => setFilter(item.key)}
+            className={`whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+              filter === item.key
+                ? 'border-primary/20 bg-primary-light text-primary-dark'
+                : 'border-border bg-background text-text-secondary hover:bg-surface hover:text-text-primary'
             }`}
           >
-            {status === 'all' ? 'All' : status.replace(/_/g, ' ').charAt(0).toUpperCase() + status.slice(1)}
-            <span className="ml-2 inline-block rounded-full bg-accent-cyan/20 px-2 py-0.5 text-xs">
-              {statusCounts[status as keyof typeof statusCounts]}
+            {item.label}
+            <span className="ml-2 rounded-md bg-surface px-1.5 py-0.5 text-xs">
+              {statusCounts[item.key as keyof typeof statusCounts]}
             </span>
           </button>
         ))}
       </div>
 
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-0">
           {isLoading ? (
-            <LoadingSpinner />
+            <div className="p-6">
+              <LoadingSpinner />
+            </div>
           ) : error ? (
-            <Error message="Failed to load tickets" onRetry={() => refetch()} />
+            <div className="p-6">
+              <Error message="Failed to load tickets" onRetry={() => refetch()} />
+            </div>
           ) : filteredTickets.length === 0 ? (
-            <EmptyState
-              title="No tickets found"
-              description={filter !== 'all' ? 'No tickets match the selected filter' : 'Create your first ticket to get started'}
-            />
+            <div className="p-6">
+              <EmptyState
+                title="No tickets found"
+                description={
+                  filter !== 'all'
+                    ? 'No tickets match the selected filter'
+                    : 'Tickets will appear here when generated from inspections'
+                }
+              />
+            </div>
           ) : (
             <Table>
               <TableHead>
-                <TableRow>
+                <TableRow index={0}>
                   <TableHeader>ID</TableHeader>
                   <TableHeader>Priority</TableHeader>
                   <TableHeader>Status</TableHeader>
@@ -96,25 +103,35 @@ const Tickets: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredTickets.map((ticket) => (
-                  <TableRow key={ticket.id}>
-                    <TableCell className="font-mono text-sm text-white">{ticket.id.slice(0, 8)}</TableCell>
+                {filteredTickets.map((ticket, idx) => (
+                  <TableRow key={ticket.id} index={idx + 1}>
+                    <TableCell className="font-mono text-xs text-text-secondary">
+                      {ticket.id.slice(0, 8)}
+                    </TableCell>
                     <TableCell>
-                      <span className={`inline-block rounded px-2 py-1 text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
+                      <span
+                        className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-medium ${priorityStyles[ticket.priority]}`}
+                      >
                         {ticket.priority}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className={`inline-block rounded px-2 py-1 text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                        {ticket.status.replace(/_/g, ' ').charAt(0).toUpperCase() + ticket.status.slice(1)}
+                      <span
+                        className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-medium uppercase tracking-wide ${ticketStatusStyles[ticket.status]}`}
+                      >
+                        {formatLabel(ticket.status)}
                       </span>
                     </TableCell>
                     <TableCell className="font-medium">{ticket.title}</TableCell>
-                    <TableCell>{ticket.assigned_team || '-'}</TableCell>
-                    <TableCell>{format(new Date(ticket.due_date), 'MMM d, yyyy')}</TableCell>
+                    <TableCell className="text-text-secondary">
+                      {ticket.assigned_team || '—'}
+                    </TableCell>
+                    <TableCell className="text-text-secondary">
+                      {format(new Date(ticket.due_date), 'MMM d, yyyy')}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Link to={`/ticket/${ticket.id}`}>
-                        <Button variant="secondary" size="sm">
+                        <Button variant="ghost" size="sm">
                           View
                         </Button>
                       </Link>
@@ -126,7 +143,7 @@ const Tickets: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 

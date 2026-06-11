@@ -17,6 +17,16 @@ export const useAsset = (id: string | undefined) => {
   })
 }
 
+export const useAssetInspections = (id: string | undefined) => {
+  return useQuery({
+    queryKey: ['assets', id, 'inspections'],
+    queryFn: () => assetsService.getInspections(id!),
+    enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  })
+}
+
 export const useCreateAsset = () => {
   const queryClient = useQueryClient()
 

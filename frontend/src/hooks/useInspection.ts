@@ -38,8 +38,9 @@ export const useUploadInspection = () => {
       pilotId: string
       files: File[]
     }) => inspectionService.upload(assetId, pilotId, files),
-    onSuccess: () => {
+    onSuccess: (_, { assetId }) => {
       queryClient.invalidateQueries({ queryKey: ['inspections'] })
+      queryClient.invalidateQueries({ queryKey: ['assets', assetId, 'inspections'] })
     },
   })
 }

@@ -1,9 +1,9 @@
-import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Layout } from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Assets from './pages/Assets'
+import AssetDetails from './pages/AssetDetails'
 import CreateAsset from './pages/CreateAsset'
 import InspectionUpload from './pages/InspectionUpload'
 import InspectionDetails from './pages/InspectionDetails'
@@ -27,6 +27,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/assets" element={<Assets />} />
+            <Route path="/assets/:id" element={<AssetDetails />} />
             <Route path="/assets/new" element={<CreateAsset />} />
             <Route path="/inspection/upload" element={<InspectionUpload />} />
             <Route path="/inspection/:id" element={<InspectionDetails />} />

@@ -1,20 +1,17 @@
 import React from 'react'
 import { AlertCircle } from 'lucide-react'
+import { InfrastructureLoader } from './three/InfrastructureLoader'
+import { Button } from './Button'
 
-export const LoadingSpinner: React.FC = () => (
-  <div className="flex items-center justify-center py-12">
-    <div className="relative h-12 w-12">
-      <div className="absolute inset-0 rounded-full border-2 border-dark-600 animate-orbit" />
-      <div className="absolute inset-2 rounded-full border-2 border-transparent border-t-accent-cyan border-r-accent-cyan animate-orbit" style={{animationDirection: 'reverse'}} />
-      <div className="absolute inset-4 rounded-full bg-gradient-to-r from-accent-cyan to-accent-blue animate-pulse" />
-    </div>
-  </div>
-)
+export const LoadingSpinner: React.FC = () => <InfrastructureLoader />
 
 export const Skeleton: React.FC<{ count?: number }> = ({ count = 1 }) => (
   <>
     {Array.from({ length: count }).map((_, i) => (
-      <div key={i} className="mb-3 h-4 animate-pulse rounded bg-dark-700 bg-opacity-50" />
+      <div
+        key={i}
+        className="mb-3 h-4 animate-pulse rounded-lg bg-surface"
+      />
     ))}
   </>
 )
@@ -28,16 +25,13 @@ export const Error: React.FC<ErrorProps> = ({
   message = 'Something went wrong',
   onRetry,
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-lg border border-red-900 border-opacity-50 bg-dark-700 bg-opacity-50 py-12 backdrop-blur-sm">
-    <AlertCircle className="mb-2 h-8 w-8 text-red-400" />
-    <p className="mb-4 text-sm text-red-300">{message}</p>
+  <div className="flex flex-col items-center justify-center rounded-card border border-red-100 bg-red-50/50 py-12">
+    <AlertCircle className="mb-3 h-8 w-8 text-critical" />
+    <p className="mb-4 text-sm text-critical">{message}</p>
     {onRetry && (
-      <button
-        onClick={onRetry}
-        className="text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
-      >
+      <Button variant="outline" size="sm" onClick={onRetry}>
         Try again
-      </button>
+      </Button>
     )}
   </div>
 )
@@ -55,10 +49,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   action,
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-lg border border-dark-600 border-opacity-50 bg-dark-700 bg-opacity-30 py-12 backdrop-blur-sm hover:border-accent-cyan transition-colors">
-    {icon && <div className="mb-4 text-white group-hover:text-accent-cyan transition-colors">{icon}</div>}
-    <h3 className="mb-2 text-base font-medium text-white">{title}</h3>
-    {description && <p className="mb-4 text-sm text-white">{description}</p>}
+  <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-border bg-surface/50 py-16">
+    {icon && <div className="mb-4 text-text-secondary">{icon}</div>}
+    <h3 className="mb-2 text-base font-medium text-text-primary">{title}</h3>
+    {description && (
+      <p className="mb-6 max-w-sm text-center text-sm text-text-secondary">{description}</p>
+    )}
     {action}
   </div>
 )
@@ -70,28 +66,21 @@ interface AlertProps {
 }
 
 export const Alert: React.FC<AlertProps> = ({ type, message, onClose }) => {
-  const bgColor = {
-    success: 'bg-dark-700 bg-opacity-50 border-accent-green border-opacity-50',
-    error: 'bg-dark-700 bg-opacity-50 border-red-900 border-opacity-50',
-    warning: 'bg-dark-700 bg-opacity-50 border-amber-900 border-opacity-50',
-    info: 'bg-dark-700 bg-opacity-50 border-accent-cyan border-opacity-50',
-  }[type]
-
-  const textColor = {
-    success: 'text-accent-green',
-    error: 'text-red-400',
-    warning: 'text-amber-400',
-    info: 'text-accent-cyan',
+  const styles = {
+    success: 'bg-primary-light border-primary/20 text-primary-dark',
+    error: 'bg-red-50 border-red-100 text-critical',
+    warning: 'bg-amber-50 border-amber-100 text-warning',
+    info: 'bg-surface border-border text-text-primary',
   }[type]
 
   return (
-    <div className={`rounded-lg border p-4 backdrop-blur-sm ${bgColor}`}>
-      <div className="flex items-center justify-between">
-        <p className={`text-sm ${textColor}`}>{message}</p>
+    <div className={`rounded-card border p-4 ${styles}`}>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm">{message}</p>
         {onClose && (
           <button
             onClick={onClose}
-            className={`text-sm font-medium ${textColor} hover:opacity-75 transition-opacity`}
+            className="shrink-0 text-sm font-medium opacity-60 transition-opacity hover:opacity-100"
           >
             ✕
           </button>

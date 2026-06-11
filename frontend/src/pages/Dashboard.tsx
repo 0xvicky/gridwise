@@ -1,128 +1,266 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { TrendingUp, AlertCircle, CheckCircle, Clock } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components'
-import { LoadingSpinner, EmptyState } from '@/components/Loading'
+import { format } from 'date-fns'
+import {
+  Package2,
+  FileSearch,
+  Ticket,
+  AlertTriangle,
+  ArrowRight,
+  Activity,
+} from 'lucide-react'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  AnimatedCounter,
+  Badge,
+  Timeline,
+} from '@/components'
+import { TowerWireframe } from '@/components/three/TowerWireframe'
+import { useAssets } from '@/hooks/useAssets'
+import { useTickets } from '@/hooks/useTickets'
+import { TicketStatus } from '@/types/enums'
+import { ticketStatusStyles, formatLabel } from '@/lib/badges'
 
 const Dashboard: React.FC = () => {
+  const { data: assets } = useAssets()
+  const { data: tickets } = useTickets()
+
+  const totalAssets = assets?.length ?? 0
+  const openTickets =
+    tickets?.filter((t) => t.status === TicketStatus.OPEN).length ?? 0
+  const criticalDefects =
+    tickets?.filter((t) => t.priority === 'P1').length ?? 0
+  const totalInspections = 156
+
   const stats = [
     {
       label: 'Total Assets',
-      value: '24',
-      icon: TrendingUp,
-      gradient: 'from-accent-blue to-accent-cyan',
+      value: totalAssets,
+      icon: Package2,
+      href: '/assets',
     },
     {
-      label: 'Inspections',
-      value: '156',
-      icon: CheckCircle,
-      gradient: 'from-accent-green to-accent-cyan',
+      label: 'Total Inspections',
+      value: totalInspections,
+      icon: FileSearch,
+      href: '/inspection/upload',
     },
     {
       label: 'Open Tickets',
-      value: '12',
-      icon: Clock,
-      gradient: 'from-accent-amber to-accent-blue',
+      value: openTickets,
+      icon: Ticket,
+      href: '/tickets',
     },
     {
       label: 'Critical Defects',
-      value: '3',
-      icon: AlertCircle,
-      gradient: 'from-red-500 to-accent-amber',
+      value: criticalDefects,
+      icon: AlertTriangle,
+      href: '/tickets',
     },
   ]
 
   const recentInspections = [
+    { id: '1', asset: 'Tower A-01', status: 'Completed', score: 85, date: '2024-06-05' },
+    { id: '2', asset: 'Pole B-15', status: 'Processing', score: null, date: '2024-06-04' },
+    { id: '3', asset: 'Rail C-07', status: 'Completed', score: 72, date: '2024-06-03' },
+  ]
+
+  const recentTickets = tickets?.slice(0, 4) ?? []
+
+  const healthScores = [
+    { zone: 'North Region', score: 87, assets: 8 },
+    { zone: 'Central Grid', score: 72, assets: 12 },
+    { zone: 'South Corridor', score: 91, assets: 6 },
+    { zone: 'East Distribution', score: 65, assets: 9 },
+  ]
+
+  const activityEvents = [
     {
       id: '1',
-      asset: 'Tower A-01',
-      status: 'Completed',
-      score: 85,
-      date: '2024-06-05',
+      title: 'AI analysis completed',
+      description: 'Inspection #a3f2b1 — 3 defects detected on Tower A-01',
+      time: '12 min ago',
+      type: 'success' as const,
     },
     {
       id: '2',
-      asset: 'Pole B-15',
-      status: 'Processing',
-      score: null,
-      date: '2024-06-04',
+      title: 'Ticket P1 created',
+      description: 'Corrosion detected — assigned to Maintenance Team Alpha',
+      time: '45 min ago',
+      type: 'critical' as const,
     },
     {
       id: '3',
-      asset: 'Rail C-07',
-      status: 'Completed',
-      score: 72,
-      date: '2024-06-03',
+      title: 'Drone inspection uploaded',
+      description: 'Pole B-15 — 24 images queued for validation',
+      time: '2 hours ago',
+      type: 'info' as const,
+    },
+    {
+      id: '4',
+      title: 'Health score updated',
+      description: 'Central Grid zone score decreased from 78 to 72',
+      time: '5 hours ago',
+      type: 'warning' as const,
     },
   ]
 
-  const recentTickets = [
-    { id: 'T001', priority: 'P1', status: 'OPEN', title: 'Corrosion detected', dueDate: '2024-06-07' },
-    { id: 'T002', priority: 'P2', status: 'IN_PROGRESS', title: 'Vegetation overgrowth', dueDate: '2024-06-15' },
-    { id: 'T003', priority: 'P3', status: 'OPEN', title: 'Missing component', dueDate: '2024-06-20' },
-  ]
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">Dashboard</h1>
-        <p className="mt-2 text-white">Overview of your infrastructure inspection operations</p>
-      </div>
+    <div className="space-y-10">
+      {/* Hero */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative overflow-hidden rounded-card border border-border bg-surface/50 p-8 lg:p-10"
+      >
+        <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+          <div>
+            <p className="text-sm font-medium text-primary">Operations Dashboard</p>
+            <h1 className="mt-2 text-[2.75rem] font-semibold leading-tight tracking-tight text-text-primary lg:text-[3.25rem]">
+              GridWise AI Infrastructure Intelligence
+            </h1>
+            <p className="mt-4 max-w-lg text-base text-text-secondary">
+              Real-time monitoring of critical infrastructure assets, drone inspections,
+              and AI-powered defect detection.
+            </p>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon
-          return (
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {stats.map((stat, idx) => {
+                const Icon = stat.icon
+                return (
+                  <Link key={stat.label} to={stat.href}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + idx * 0.08, duration: 0.4 }}
+                      className="rounded-xl border border-border bg-background p-4 transition-shadow hover:shadow-card-hover"
+                    >
+                      <Icon size={16} className="text-primary" />
+                      <p className="mt-3 text-2xl font-semibold text-text-primary">
+                        <AnimatedCounter value={stat.value} />
+                      </p>
+                      <p className="mt-1 text-xs text-text-secondary">{stat.label}</p>
+                    </motion.div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <TowerWireframe height={280} />
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Health Score Overview */}
+      <section>
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-section-title text-text-primary">Health Score Overview</h2>
+          <Link
+            to="/assets"
+            className="flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-primary"
+          >
+            View all <ArrowRight size={14} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {healthScores.map((item, idx) => (
             <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
+              key={item.zone}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ y: -8 }}
-              className="group"
+              transition={{ delay: 0.2 + idx * 0.06, duration: 0.4 }}
             >
-              <Card className={`bg-gradient-to-br from-dark-700 from-opacity-40 to-dark-800 to-opacity-20 border-opacity-30 hover:border-opacity-100 group-hover:shadow-xl group-hover:shadow-${stat.gradient}-500/30`}>
+              <Card hover>
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-white">{stat.label}</p>
-                    <p className="mt-2 text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">{stat.value}</p>
+                    <p className="text-sm text-text-secondary">{item.zone}</p>
+                    <p className="mt-2 text-3xl font-semibold text-text-primary">
+                      <AnimatedCounter value={item.score} suffix="%" />
+                    </p>
+                    <p className="mt-1 text-xs text-text-secondary">
+                      {item.assets} assets monitored
+                    </p>
                   </div>
-                  <div className={`rounded-lg p-3 bg-gradient-to-br ${stat.gradient} opacity-20 group-hover:opacity-100 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-${stat.gradient}-500/50`}>
-                    <Icon className={`h-6 w-6 text-white`} />
-                  </div>
+                  <div
+                    className={`h-2 w-2 rounded-full ${
+                      item.score >= 80
+                        ? 'bg-success'
+                        : item.score >= 60
+                          ? 'bg-warning'
+                          : 'bg-critical'
+                    }`}
+                  />
+                </div>
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface">
+                  <motion.div
+                    className={`h-full rounded-full ${
+                      item.score >= 80
+                        ? 'bg-primary'
+                        : item.score >= 60
+                          ? 'bg-warning'
+                          : 'bg-critical'
+                    }`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${item.score}%` }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+                  />
                 </div>
               </Card>
             </motion.div>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      </section>
 
-      {/* Recent Items */}
+      {/* Recent Inspections & Tickets */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Recent Inspections */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
         >
           <Card>
             <CardHeader>
               <CardTitle>Recent Inspections</CardTitle>
+              <Link
+                to="/inspection/upload"
+                className="text-sm text-text-secondary transition-colors hover:text-primary"
+              >
+                Upload
+              </Link>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-1">
                 {recentInspections.map((inspection) => (
-                  <div key={inspection.id} className="flex items-center justify-between border-b border-dark-600 border-opacity-30 pb-4 last:border-0 hover:border-accent-cyan hover:border-opacity-50 transition-colors">
+                  <div
+                    key={inspection.id}
+                    className="flex items-center justify-between rounded-lg px-3 py-3 transition-colors hover:bg-surface"
+                  >
                     <div>
-                      <p className="font-medium text-white">{inspection.asset}</p>
-                      <p className="text-sm text-white">{inspection.date}</p>
+                      <p className="text-sm font-medium text-text-primary">
+                        {inspection.asset}
+                      </p>
+                      <p className="text-xs text-text-secondary">{inspection.date}</p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-medium ${inspection.status === 'Completed' ? 'text-accent-green' : 'text-accent-amber'}`}>
+                      <Badge
+                        variant={
+                          inspection.status === 'Completed' ? 'success' : 'warning'
+                        }
+                      >
                         {inspection.status}
-                      </p>
-                      {inspection.score && <p className="text-sm text-white">Score: {inspection.score}</p>}
+                      </Badge>
+                      {inspection.score !== null && (
+                        <p className="mt-1 text-xs text-text-secondary">
+                          Score: {inspection.score}%
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -131,45 +269,81 @@ const Dashboard: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Recent Tickets */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
         >
           <Card>
             <CardHeader>
               <CardTitle>Recent Tickets</CardTitle>
+              <Link
+                to="/tickets"
+                className="text-sm text-text-secondary transition-colors hover:text-primary"
+              >
+                View all
+              </Link>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentTickets.map((ticket) => (
-                  <div key={ticket.id} className="flex items-center justify-between border-b border-dark-600 border-opacity-30 pb-4 last:border-0 hover:border-accent-cyan hover:border-opacity-50 transition-colors">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block rounded bg-dark-700 px-2 py-1 text-xs font-medium bg-gradient-to-r from-accent-blue to-accent-cyan bg-opacity-20 text-accent-cyan">
-                          {ticket.priority}
-                        </span>
-                        <p className="font-medium text-white">{ticket.title}</p>
+              {recentTickets.length === 0 ? (
+                <p className="py-6 text-center text-sm text-text-secondary">
+                  No tickets yet
+                </p>
+              ) : (
+                <div className="space-y-1">
+                  {recentTickets.map((ticket) => (
+                    <Link
+                      key={ticket.id}
+                      to={`/ticket/${ticket.id}`}
+                      className="flex items-center justify-between rounded-lg px-3 py-3 transition-colors hover:bg-surface"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex rounded-md border px-1.5 py-0.5 text-xs font-medium ${ticket.priority === 'P1' ? 'bg-red-50 text-critical border-red-100' : ticket.priority === 'P2' ? 'bg-amber-50 text-warning border-amber-100' : 'bg-primary-light text-primary-dark border-primary/10'}`}
+                          >
+                            {ticket.priority}
+                          </span>
+                          <p className="truncate text-sm font-medium text-text-primary">
+                            {ticket.title}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-xs text-text-secondary">
+                          Due: {format(new Date(ticket.due_date), 'MMM d, yyyy')}
+                        </p>
                       </div>
-                      <p className="text-sm text-white">Due: {ticket.dueDate}</p>
-                    </div>
-                    <div>
-                      <span className={`inline-block rounded px-2 py-1 text-xs font-medium ${
-                        ticket.status === 'OPEN' ? 'bg-red-500 bg-opacity-20 text-red-300' :
-                        ticket.status === 'IN_PROGRESS' ? 'bg-accent-amber bg-opacity-20 text-accent-amber' :
-                        'bg-accent-green bg-opacity-20 text-accent-green'
-                      }`}>
-                        {ticket.status}
+                      <span
+                        className={`ml-3 shrink-0 rounded-md border px-2 py-0.5 text-xs font-medium ${ticketStatusStyles[ticket.status]}`}
+                      >
+                        {formatLabel(ticket.status)}
                       </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
       </div>
+
+      {/* System Activity Timeline */}
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+      >
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Activity size={18} className="text-primary" />
+              <CardTitle>System Activity</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Timeline events={activityEvents} />
+          </CardContent>
+        </Card>
+      </motion.section>
     </div>
   )
 }

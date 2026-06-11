@@ -14,12 +14,27 @@ from schemas.inspection import (
     InspectionUploadResponse,
     ValidationResponse,
     ValidationFileResult,
+    InspectionSummaryResponse,
+)
+from schemas.ticket import (
+    InspectionTicketsResponse,
+    TicketResponse,
+    TicketStatusUpdateRequest,
+    TicketStatusUpdateResponse,
 )
 from services.ai_detection import analyze_inspection
 from services.localstore import validate_and_store
 from services.generate_report import generate
+from services.ticket_engine import (
+    create,
+    get_inspection_tickets,
+    update_ticket_status,
+)
 from models.inspection import Inspection
+from models.ticket import Ticket
 from models.enums import ValidationStatus, AnalysisStatus
+from models.defects import Defects
+from schemas.defect import DefectResponse, DefectDescription
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from database import get_async_db
@@ -132,7 +147,6 @@ async def download_report(
         media_type="application/pdf",
         filename=f"inspection_report_{inspection_id}.pdf",
     )
-    
 
 
 @router.post("/{inspection_id}/report")
@@ -142,3 +156,78 @@ async def generate_report(
     # generate report
     res = await generate(inspection_id, db)
     return {"status": True, "message": res["message"], "path": res["path"]}
+
+
+@router.get("/{inspection_id}/defects", response_model=DefectResponse)
+async def analyze(inspection_id: UUID, db: AsyncSession = Depends(get_async_db)):
+    result = await db.execute(
+        select(Defects).where(Defects.inspection == inspection_id)
+    )
+    defects = result.scalars().all()
+
+    return DefectResponse(
+        inspection_id=inspection_id,
+        defects=[DefectDescription.model_validate(defect) for defect in defects],
+    )
+
+
+@router.get("/{inspection_id}", response_model=InspectionSummaryResponse)
+async def get_inspection_summary(
+    inspection_id: UUID, db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Get inspection summary with metadata for dashboard views.
+
+    Returns:
+        InspectionSummaryResponse containing inspection metadata
+
+    Raises:
+        HTTPException: 404 if inspection does not exist
+    """
+    inspection = await db.get(Inspection, inspection_id)
+    if not inspection:
+        raise HTTPException(
+            status_code=404,
+            detail="inspection not found",
+        )
+
+    return InspectionSummaryResponse(
+        inspection_id=inspection.id,
+        asset_id=inspection.asset_id,
+        pilot_id=inspection.pilot_id,
+        capture_date=inspection.capture_date,
+        validation_status=inspection.validation_status,
+        analysis_status=inspection.analysis_status,
+        health_score=inspection.health_score,
+    )
+
+
+@router.get("/{inspection_id}/tickets", response_model=InspectionTicketsResponse)
+async def get_tickets_for_inspection(
+    inspection_id: UUID, db: AsyncSession = Depends(get_async_db)
+):
+    """
+    Get all tickets generated for an inspection.
+
+    Returns:
+        InspectionTicketsResponse containing all tickets for the inspection
+
+    Raises:
+        HTTPException: 404 if inspection does not exist
+    """
+    tickets = await get_inspection_tickets(inspection_id, db)
+
+    return InspectionTicketsResponse(
+        inspection_id=inspection_id,
+        tickets=[TicketResponse.model_validate(ticket) for ticket in tickets],
+    )
+
+
+# ticket routers
+@router.post("/{inspection_id}/ticket")
+async def create_ticket(
+    inspection_id: UUID, db: AsyncSession = (Depends(get_async_db))
+):
+    # call the ticket generation service
+    tickets = await create(inspection_id, db)
+    return {"tickets_generated": len(tickets), "ticket_ids": tickets}

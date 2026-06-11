@@ -6,9 +6,14 @@ import {
   FileText,
   Ticket,
   Menu,
+  Search,
+  Bell,
   X,
+  Zap,
 } from 'lucide-react'
 import clsx from 'clsx'
+import { ParticleBackground } from './three/ParticleBackground'
+import { PageTransition } from './ui/PageTransition'
 
 const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -17,44 +22,51 @@ const navItems = [
   { label: 'Tickets', href: '/tickets', icon: Ticket },
 ]
 
-export const Header: React.FC = () => (
-  <header className="border-b border-dark-600 border-opacity-50 bg-gradient-to-r from-dark-800 to-dark-900 backdrop-blur-sm">
-    <div className="flex h-16 items-center justify-between px-6">
-      <Link to="/" className="flex items-center gap-2 group">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-cyan group-hover:shadow-lg group-hover:shadow-accent-cyan/50 transition-all duration-300 flex items-center justify-center">
-          <span className="text-white font-bold text-xs">G</span>
-        </div>
-        <span className="text-lg font-semibold bg-gradient-to-r from-accent-cyan to-accent-blue bg-clip-text text-transparent">GridWise</span>
-      </Link>
-      <p className="text-sm text-white">Infrastructure Inspection Dashboard</p>
-    </div>
-  </header>
-)
-
 export const Sidebar: React.FC = () => {
   const location = useLocation()
   const [isOpen, setIsOpen] = React.useState(false)
+
+  const isActive = (href: string) => {
+    if (href === '/') return location.pathname === '/'
+    return location.pathname.startsWith(href)
+  }
 
   return (
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-50 rounded-lg bg-gradient-to-r from-accent-blue to-accent-cyan p-2 text-white lg:hidden hover:shadow-lg hover:shadow-accent-cyan/50 transition-all"
+        className="fixed bottom-5 right-5 z-50 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background shadow-card-hover lg:hidden"
+        aria-label="Toggle menu"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={20} className="text-text-primary" /> : <Menu size={20} className="text-text-primary" />}
       </button>
+
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-text-primary/10 backdrop-blur-sm lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
       <aside
         className={clsx(
-          'fixed inset-y-0 left-0 z-40 w-64 border-r border-dark-600 border-opacity-50 bg-dark-800 transition-transform lg:relative lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-background transition-transform duration-300 ease-premium lg:translate-x-0',
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <nav className="space-y-1 p-4 pt-20 lg:pt-4">
+        <div className="flex h-14 items-center gap-2.5 border-b border-border px-5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Zap size={16} className="text-white" strokeWidth={2.5} />
+          </div>
+          <span className="text-base font-semibold tracking-tight text-text-primary">
+            GridWise
+          </span>
+        </div>
+
+        <nav className="flex-1 space-y-0.5 p-3">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = location.pathname === item.href ||
-              (item.href !== '/' && location.pathname.startsWith(item.href.split('/')[1]))
+            const active = isActive(item.href)
 
             return (
               <Link
@@ -62,35 +74,73 @@ export const Sidebar: React.FC = () => {
                 to={item.href}
                 onClick={() => setIsOpen(false)}
                 className={clsx(
-                  'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
-                  isActive
-                    ? 'bg-gradient-to-r from-accent-blue to-accent-cyan text-white shadow-lg shadow-accent-cyan/30'
-                    : 'text-white hover:text-accent-cyan hover:bg-dark-700'
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200',
+                  active
+                    ? 'bg-primary-light text-primary-dark'
+                    : 'text-text-secondary hover:bg-surface hover:text-text-primary'
                 )}
               >
-                <Icon size={20} />
+                <Icon size={18} strokeWidth={active ? 2.25 : 2} />
                 {item.label}
               </Link>
             )
           })}
         </nav>
+
+        <div className="border-t border-border p-4">
+          <p className="text-xs text-text-secondary">Infrastructure Intelligence</p>
+          <p className="mt-0.5 text-xs font-medium text-primary">v0.1.0</p>
+        </div>
       </aside>
     </>
   )
 }
+
+export const TopNav: React.FC = () => (
+  <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-md lg:px-8">
+    <div className="relative hidden max-w-md flex-1 sm:block">
+      <Search
+        size={16}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary"
+      />
+      <input
+        type="search"
+        placeholder="Search assets, inspections, tickets..."
+        className="h-9 w-full rounded-lg border border-border bg-surface pl-9 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/30"
+      />
+    </div>
+
+    <div className="flex items-center gap-3 sm:ml-auto">
+      <button
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:bg-surface hover:text-text-primary"
+        aria-label="Notifications"
+      >
+        <Bell size={16} />
+      </button>
+      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-light text-sm font-medium text-primary-dark">
+        GW
+      </div>
+    </div>
+  </header>
+)
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => (
-  <div className="flex min-h-screen flex-col bg-dark-900 lg:flex-row">
-    <Sidebar />
-    <div className="flex flex-1 flex-col">
-      <Header />
-      <main className="flex-1 overflow-auto p-6 lg:ml-0 bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
-        <div className="mx-auto max-w-7xl">{children}</div>
-      </main>
+  <div className="relative min-h-screen bg-background">
+    <ParticleBackground />
+    <div className="relative z-10 flex">
+      <Sidebar />
+      <div className="flex min-h-screen flex-1 flex-col lg:pl-60">
+        <TopNav />
+        <main className="flex-1 overflow-auto px-6 py-8 lg:px-10 lg:py-10">
+          <div className="mx-auto max-w-7xl">
+            <PageTransition>{children}</PageTransition>
+          </div>
+        </main>
+      </div>
     </div>
   </div>
 )

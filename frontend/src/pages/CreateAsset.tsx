@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useCreateAsset } from '@/hooks/useAssets'
-import { Button, Card, CardHeader, CardTitle, CardContent, FormGroup, Label, Input, Select, Textarea } from '@/components'
+import { Button, Card, CardContent, FormGroup, Label, Input, Select } from '@/components'
 import { Alert } from '@/components/Loading'
 import { CreateAssetRequest } from '@/types'
 import { AssetType } from '@/types/enums'
@@ -24,7 +23,10 @@ const CreateAsset: React.FC = () => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'latitude' || name === 'longitude' || name === 'installed_year' ? parseFloat(value) || 0 : value,
+      [name]:
+        name === 'latitude' || name === 'longitude' || name === 'installed_year'
+          ? parseFloat(value) || 0
+          : value,
     }))
   }
 
@@ -39,14 +41,12 @@ const CreateAsset: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="max-w-2xl"
-    >
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-100 to-accent-cyan bg-clip-text text-transparent">Create Asset</h1>
-        <p className="mt-2 text-white">Register a new infrastructure asset</p>
+    <div className="mx-auto max-w-2xl space-y-8">
+      <div>
+        <h1 className="text-page-title text-text-primary">Create Asset</h1>
+        <p className="mt-2 text-base text-text-secondary">
+          Register a new infrastructure asset in the system
+        </p>
       </div>
 
       {showSuccess && (
@@ -143,22 +143,18 @@ const CreateAsset: React.FC = () => {
               </FormGroup>
             </div>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 border-t border-border pt-6">
               <Button type="submit" isLoading={isPending}>
                 Create Asset
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate('/assets')}
-              >
+              <Button type="button" variant="secondary" onClick={() => navigate('/assets')}>
                 Cancel
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 

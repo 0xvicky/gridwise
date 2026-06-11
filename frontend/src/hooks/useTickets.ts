@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ticketsService } from '@/services/tickets'
-import { TicketStatus } from '@/types'
+import { TicketStatus } from '@/types/enums'
 
 export const useTickets = () => {
   return useQuery({

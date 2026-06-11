@@ -1,4 +1,5 @@
 import React from 'react'
+import { motion } from 'framer-motion'
 import clsx from 'clsx'
 
 interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
@@ -6,11 +7,16 @@ interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
 }
 
 export const Table: React.FC<TableProps> = ({ className, children, ...props }) => (
-  <div className="overflow-x-auto rounded-lg border border-dark-600 border-opacity-50">
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    className="overflow-x-auto rounded-card border border-border"
+  >
     <table className={clsx('w-full text-sm', className)} {...props}>
       {children}
     </table>
-  </div>
+  </motion.div>
 )
 
 interface TableHeadProps extends React.HTMLAttributes<HTMLTableSectionElement> {
@@ -18,7 +24,7 @@ interface TableHeadProps extends React.HTMLAttributes<HTMLTableSectionElement> {
 }
 
 export const TableHead: React.FC<TableHeadProps> = ({ children, ...props }) => (
-  <thead className="border-b border-dark-600 border-opacity-50 bg-dark-800 bg-opacity-50" {...props}>
+  <thead className="border-b border-border bg-surface/80" {...props}>
     {children}
   </thead>
 )
@@ -32,7 +38,7 @@ export const TableHeader = React.forwardRef<HTMLTableHeaderCellElement, TableHea
     <th
       ref={ref}
       className={clsx(
-        'px-6 py-3 text-left text-xs font-medium text-accent-cyan',
+        'px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-secondary',
         className
       )}
       {...props}
@@ -49,23 +55,31 @@ interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {
 }
 
 export const TableBody: React.FC<TableBodyProps> = ({ children, ...props }) => (
-  <tbody {...props}>{children}</tbody>
+  <tbody className="divide-y divide-border bg-background" {...props}>
+    {children}
+  </tbody>
 )
 
 interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children: React.ReactNode
+  index?: number
 }
 
-export const TableRow: React.FC<TableRowProps> = ({ className, children, ...props }) => (
-  <tr
-    className={clsx(
-      'border-b border-dark-600 border-opacity-30 transition-all hover:bg-dark-700 hover:bg-opacity-40 hover:border-accent-cyan hover:border-opacity-50',
-      className
-    )}
-    {...props}
+export const TableRow: React.FC<TableRowProps> = ({
+  className,
+  children,
+  index = 0,
+  ...props
+}) => (
+  <motion.tr
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: index * 0.04, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    className={clsx('transition-colors hover:bg-surface/60', className)}
+    {...(props as object)}
   >
     {children}
-  </tr>
+  </motion.tr>
 )
 
 interface TableCellProps extends React.TdHTMLAttributes<HTMLTableDataCellElement> {
@@ -76,7 +90,7 @@ export const TableCell = React.forwardRef<HTMLTableDataCellElement, TableCellPro
   ({ className, children, ...props }, ref) => (
     <td
       ref={ref}
-      className={clsx('px-6 py-4 text-white', className)}
+      className={clsx('px-5 py-4 text-text-primary', className)}
       {...props}
     >
       {children}

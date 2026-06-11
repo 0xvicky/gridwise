@@ -11,16 +11,20 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-gradient-to-r from-accent-blue to-accent-cyan text-white hover:shadow-lg hover:shadow-accent-cyan/50 active:opacity-90',
-  secondary: 'bg-dark-700 text-white border border-dark-600 hover:bg-dark-600 active:bg-dark-500',
-  outline: 'border border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:bg-opacity-10 active:bg-opacity-20',
-  ghost: 'text-white hover:text-accent-cyan hover:bg-dark-700 active:bg-dark-600',
+  primary:
+    'bg-primary text-white hover:bg-primary-dark shadow-subtle active:scale-[0.98]',
+  secondary:
+    'bg-surface text-text-primary border border-border hover:bg-border/40 active:scale-[0.98]',
+  outline:
+    'border border-border text-text-primary hover:border-primary/30 hover:bg-primary-light active:scale-[0.98]',
+  ghost:
+    'text-text-secondary hover:text-text-primary hover:bg-surface active:scale-[0.98]',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-base',
-  lg: 'px-6 py-3 text-base',
+  sm: 'h-8 px-3 text-sm rounded-lg',
+  md: 'h-10 px-4 text-sm rounded-lg',
+  lg: 'h-11 px-6 text-base rounded-xl',
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -30,7 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => (
     <button
       className={clsx(
-        'inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-dark-900 disabled:opacity-50 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center font-medium transition-all duration-150 ease-premium focus-ring disabled:cursor-not-allowed disabled:opacity-50',
         variantStyles[variant],
         sizeStyles[size],
         className
