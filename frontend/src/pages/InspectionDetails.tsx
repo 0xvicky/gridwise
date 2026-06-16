@@ -1,13 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Download, FileText, Zap, ChevronLeft, Brain, Shield } from 'lucide-react'
+import {
+  Download,
+  FileText,
+  Zap,
+  ChevronLeft,
+  Brain,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import {
   useInspectionSummary,
   useInspectionDefects,
   useGenerateReport,
   useDownloadReport,
+  useCheckReport,
   useGenerateTickets,
 } from '@/hooks/useInspection'
 import { useInspectionTickets } from '@/hooks/useTickets'
@@ -32,22 +42,40 @@ import { priorityStyles, ticketStatusStyles, formatLabel } from '@/lib/badges'
 
 const InspectionDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+
   const navigate = useNavigate()
   const [showSuccess, setShowSuccess] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [openDefectIndex, setOpenDefectIndex] = useState<number | null>(null)
+  // const [isReportDownloaded, setIsReportDownloaded] = useState(false)
 
-  const { data: inspection, isLoading: inspectionLoading, error: inspectionError } =
-    useInspectionSummary(id)
+  const {
+    data: inspection,
+    isLoading: inspectionLoading,
+    error: inspectionError,
+  } = useInspectionSummary(id)
   const { data: defectData } = useInspectionDefects(id)
   const { data: ticketData } = useInspectionTickets(id)
   const { mutate: generateReport, isPending: reportPending } = useGenerateReport()
   const { mutate: downloadReport, isPending: downloadPending } = useDownloadReport()
+  const { data: report } = useCheckReport(id)
+  const isReportDownloaded = Boolean(id && report?.report_status)
+  const [isReport, setIsReport] = useState(isReportDownloaded)
+
   const { mutate: generateTickets, isPending: ticketsPending } = useGenerateTickets()
+
+  useEffect(() => {
+    if (!id) return
+    if (report && report?.report_status) {
+      setIsReport(true)
+    }
+  }, [setShowSuccess, setSuccessMessage, report, id])
 
   const handleGenerateReport = () => {
     if (!id) return
     generateReport(id, {
       onSuccess: () => {
+        setIsReport(true)
         setSuccessMessage('Report generated successfully!')
         setShowSuccess(true)
         setTimeout(() => setShowSuccess(false), 3000)
@@ -89,17 +117,15 @@ const InspectionDetails: React.FC = () => {
     return map[severity]
   }
 
+  const detailValue = (value: string | null | undefined) => value || 'Not provided'
+
   if (inspectionLoading) return <LoadingSpinner />
   if (inspectionError) return <Error message="Failed to load inspection details" />
 
   return (
     <div className="space-y-8">
       {showSuccess && (
-        <Alert
-          type="success"
-          message={successMessage}
-          onClose={() => setShowSuccess(false)}
-        />
+        <Alert type="success" message={successMessage} onClose={() => setShowSuccess(false)} />
       )}
 
       <div>
@@ -110,7 +136,7 @@ const InspectionDetails: React.FC = () => {
           <ChevronLeft size={16} />
           Back
         </button>
-        <h1 className="text-page-title text-text-primary">Inspection Details</h1>
+        <h1 className="text-page-title text-primary">Inspection Details</h1>
         <p className="mt-2 font-mono text-sm text-text-secondary">{id}</p>
       </div>
 
@@ -220,14 +246,23 @@ const InspectionDetails: React.FC = () => {
                 </div>
               </div>
               <div className="ml-auto flex flex-wrap gap-2">
-                <Button onClick={handleGenerateReport} isLoading={reportPending} variant="outline" size="sm">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Generate Report
-                </Button>
-                <Button onClick={handleDownloadReport} isLoading={downloadPending} variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Report
-                </Button>
+                {isReport ? (
+                  <Button
+                    onClick={handleDownloadReport}
+                    isLoading={downloadPending}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Report
+                  </Button>
+                ) : (
+                  <Button onClick={handleGenerateReport} isLoading={reportPending} size="sm">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generate Report
+                  </Button>
+                )}
+
                 <Button onClick={handleGenerateTickets} isLoading={ticketsPending} size="sm">
                   <Zap className="mr-2 h-4 w-4" />
                   Generate Tickets
@@ -239,48 +274,130 @@ const InspectionDetails: React.FC = () => {
           {/* Defect Cards */}
           {defectData && defectData.defects.length > 0 && (
             <section>
-              <h2 className="mb-5 text-section-title text-text-primary">
+              <h2 className="mb-5 text-section-title text-primary">
                 Detected Defects ({defectData.defects.length})
               </h2>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {defectData.defects.map((defect, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.06, duration: 0.35 }}
-                  >
-                    <Card hover>
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-base font-medium text-text-primary">
-                            {formatLabel(defect.defect_type)}
-                          </p>
-                          <p className="mt-1 text-sm text-text-secondary">
-                            {defect.location_description}
-                          </p>
+                {defectData.defects.map((defect, idx) => {
+                  const isOpen = openDefectIndex === idx
+
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.06, duration: 0.35 }}
+                    >
+                      <Card
+                        hover
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={isOpen}
+                        className="cursor-pointer"
+                        onClick={() => setOpenDefectIndex(isOpen ? null : idx)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault()
+                            setOpenDefectIndex(isOpen ? null : idx)
+                          }
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-base font-medium text-primary">
+                              {formatLabel(defect.defect_type)}
+                            </p>
+                            <p className="mt-1 text-sm text-text-secondary">
+                              {defect.location_description}
+                            </p>
+                          </div>
+                          <Badge variant={severityVariant(defect.severity)}>
+                            {formatLabel(defect.severity)}
+                          </Badge>
                         </div>
-                        <Badge variant={severityVariant(defect.severity)}>
-                          {formatLabel(defect.severity)}
-                        </Badge>
-                      </div>
-                      <div className="mt-4 flex items-center gap-4 border-t border-border pt-4">
-                        <div>
-                          <p className="text-xs text-text-secondary">Confidence</p>
-                          <p className="text-sm font-medium text-text-primary">
-                            {(defect.confidence_score * 100).toFixed(0)}%
-                          </p>
+                        <div className="mt-4 flex items-center gap-4 border-t border-border pt-4">
+                          <div>
+                            <p className="text-xs text-text-secondary">Confidence</p>
+                            <p className="text-sm font-medium text-text-primary">
+                              {(defect.confidence_score * 100).toFixed(0)}%
+                            </p>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs text-text-secondary">AI Reasoning</p>
+                            <p className="line-clamp-2 text-sm text-text-primary">
+                              {defect.ai_reasoning}
+                            </p>
+                          </div>
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border text-text-secondary">
+                            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-xs text-text-secondary">AI Reasoning</p>
-                          <p className="line-clamp-2 text-sm text-text-primary">
-                            {defect.ai_reasoning}
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
+                        {isOpen && (
+                          <div className="mt-5 space-y-5 border-t border-border pt-5">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                  Defect Type
+                                </p>
+                                <p className="mt-2 text-sm font-medium text-text-primary">
+                                  {formatLabel(defect.defect_type)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                  Severity
+                                </p>
+                                <div className="mt-2">
+                                  <Badge variant={severityVariant(defect.severity)}>
+                                    {formatLabel(defect.severity)}
+                                  </Badge>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                  Confidence Score
+                                </p>
+                                <p className="mt-2 text-sm font-medium text-text-primary">
+                                  {(defect.confidence_score * 100).toFixed(0)}%
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                  Location
+                                </p>
+                                <p className="mt-2 text-sm font-medium text-text-primary">
+                                  {detailValue(defect.location_description)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                AI Reasoning
+                              </p>
+                              <div className="mt-3 rounded-lg border border-border bg-surface p-4">
+                                <p className="whitespace-pre-wrap text-sm text-text-primary">
+                                  {detailValue(defect.ai_reasoning)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div>
+                              <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                                AI Recommendation
+                              </p>
+                              <div className="mt-3 rounded-lg border border-border bg-surface p-4">
+                                <p className="whitespace-pre-wrap text-sm text-text-primary">
+                                  {detailValue(defect.ai_recommendation)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    </motion.div>
+                  )
+                })}
               </div>
             </section>
           )}
@@ -304,7 +421,7 @@ const InspectionDetails: React.FC = () => {
                   </TableHead>
                   <TableBody>
                     {ticketData.tickets.map((ticket, idx) => (
-                      <TableRow key={ticket.ticket_id || ticket.id} index={idx + 1}>
+                      <TableRow key={ticket.id} index={idx + 1}>
                         <TableCell>
                           <span
                             className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-medium ${priorityStyles[ticket.priority]}`}

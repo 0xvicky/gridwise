@@ -7,6 +7,7 @@ import AssetDetails from './pages/AssetDetails'
 import CreateAsset from './pages/CreateAsset'
 import InspectionUpload from './pages/InspectionUpload'
 import InspectionDetails from './pages/InspectionDetails'
+import ForecastAsset from './pages/ForecastAsset'
 import Tickets from './pages/Tickets'
 import TicketDetails from './pages/TicketDetails'
 
@@ -29,6 +30,8 @@ export default function App() {
             <Route path="/assets" element={<Assets />} />
             <Route path="/assets/:id" element={<AssetDetails />} />
             <Route path="/assets/new" element={<CreateAsset />} />
+            <Route path="/assets/:assetId/forecast" element={<ForecastAsset />} />
+            <Route path="/assets/:assetId/forecast/:forecastId" element={<ForecastAsset />} />
             <Route path="/inspection/upload" element={<InspectionUpload />} />
             <Route path="/inspection/:id" element={<InspectionDetails />} />
             <Route path="/tickets" element={<Tickets />} />

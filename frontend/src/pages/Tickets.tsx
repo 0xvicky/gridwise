@@ -54,14 +54,14 @@ const Tickets: React.FC = () => {
           <button
             key={item.key}
             onClick={() => setFilter(item.key)}
-            className={`whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap rounded-xl border px-4 py-2 text-sm font-semibold transition-all duration-200 ${
               filter === item.key
-                ? 'border-primary/20 bg-primary-light text-primary-dark'
-                : 'border-border bg-background text-text-secondary hover:bg-surface hover:text-text-primary'
+                ? 'border-accent/25 bg-accent-light text-accent-dark'
+                : 'border-border bg-surface text-text-secondary hover:bg-primary-light hover:text-primary'
             }`}
           >
             {item.label}
-            <span className="ml-2 rounded-md bg-surface px-1.5 py-0.5 text-xs">
+            <span className="ml-2 rounded-md bg-surface/80 px-1.5 py-0.5 text-xs">
               {statusCounts[item.key as keyof typeof statusCounts]}
             </span>
           </button>

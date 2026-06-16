@@ -9,7 +9,7 @@ class DefectDescription(BaseModel):
     location_description: str
     confidence_score: float
     ai_reasoning: str
-
+    ai_recommendation:str
     model_config = {"from_attributes": True}
 
 

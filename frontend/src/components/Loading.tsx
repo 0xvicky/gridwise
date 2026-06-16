@@ -10,7 +10,7 @@ export const Skeleton: React.FC<{ count?: number }> = ({ count = 1 }) => (
     {Array.from({ length: count }).map((_, i) => (
       <div
         key={i}
-        className="mb-3 h-4 animate-pulse rounded-lg bg-surface"
+        className="mb-3 h-4 animate-pulse rounded-lg bg-border/60"
       />
     ))}
   </>
@@ -25,7 +25,7 @@ export const Error: React.FC<ErrorProps> = ({
   message = 'Something went wrong',
   onRetry,
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-card border border-red-100 bg-red-50/50 py-12">
+  <div className="flex flex-col items-center justify-center rounded-card border border-red-100 bg-red-50/50 px-6 py-14">
     <AlertCircle className="mb-3 h-8 w-8 text-critical" />
     <p className="mb-4 text-sm text-critical">{message}</p>
     {onRetry && (
@@ -49,9 +49,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,
   action,
 }) => (
-  <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-border bg-surface/50 py-16">
+  <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-border bg-background/70 px-6 py-16">
     {icon && <div className="mb-4 text-text-secondary">{icon}</div>}
-    <h3 className="mb-2 text-base font-medium text-text-primary">{title}</h3>
+    <h3 className="mb-2 text-base font-semibold text-primary">{title}</h3>
     {description && (
       <p className="mb-6 max-w-sm text-center text-sm text-text-secondary">{description}</p>
     )}
@@ -67,10 +67,10 @@ interface AlertProps {
 
 export const Alert: React.FC<AlertProps> = ({ type, message, onClose }) => {
   const styles = {
-    success: 'bg-primary-light border-primary/20 text-primary-dark',
+    success: 'bg-green-50 border-green-100 text-success',
     error: 'bg-red-50 border-red-100 text-critical',
-    warning: 'bg-amber-50 border-amber-100 text-warning',
-    info: 'bg-surface border-border text-text-primary',
+    warning: 'bg-accent-light border-orange-100 text-accent-dark',
+    info: 'bg-primary-light border-primary/15 text-primary-dark',
   }[type]
 
   return (

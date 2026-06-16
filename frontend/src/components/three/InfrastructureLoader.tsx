@@ -7,7 +7,7 @@ function RotatingNode() {
 
   const { lineObjects, nodes } = useMemo(() => {
     const material = new THREE.LineBasicMaterial({
-      color: '#0F9D58',
+      color: '#155959',
       transparent: true,
       opacity: 0.6,
     })
@@ -39,12 +39,12 @@ function RotatingNode() {
       ))}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[0.08, 8, 8]} />
-        <meshBasicMaterial color="#0F9D58" transparent opacity={0.8} />
+        <meshBasicMaterial color="#F38D26" transparent opacity={0.85} />
       </mesh>
       {nodes.map((node, i) => (
         <mesh key={`n-${i}`} position={node}>
           <sphereGeometry args={[0.05, 6, 6]} />
-          <meshBasicMaterial color="#0B7A44" transparent opacity={0.5} />
+          <meshBasicMaterial color="#155959" transparent opacity={0.55} />
         </mesh>
       ))}
     </group>

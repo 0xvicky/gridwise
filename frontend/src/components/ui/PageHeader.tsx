@@ -28,9 +28,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   >
     <div>
       {back}
-      <h1 className="text-page-title text-text-primary">{title}</h1>
+      <h1 className="text-page-title text-primary">{title}</h1>
       {description && (
-        <p className="mt-2 text-base text-text-secondary">{description}</p>
+        <p className="mt-2 text-base font-medium text-accent-dark">{description}</p>
       )}
     </div>
     {action}

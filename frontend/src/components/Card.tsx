@@ -8,7 +8,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const cardClassName =
-  'rounded-card border border-border bg-background p-6 shadow-card transition-shadow duration-300'
+  'rounded-card border border-border bg-surface p-6 shadow-card transition-all duration-300 ease-premium'
 
 export const Card: React.FC<CardProps> = ({
   className,
@@ -16,15 +16,18 @@ export const Card: React.FC<CardProps> = ({
   hover = false,
   ...props
 }) => {
+  const motionProps = props as React.ComponentProps<typeof motion.div>
+
   if (hover) {
     return (
       <motion.div
         whileHover={{
           y: -2,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03)',
+          boxShadow: '0 18px 45px rgba(31, 41, 55, 0.08), 0 4px 10px rgba(21, 89, 89, 0.06)',
           transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
         }}
         className={clsx(cardClassName, 'cursor-default', className)}
+        {...motionProps}
       >
         {children}
       </motion.div>
@@ -48,7 +51,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   ...props
 }) => (
   <div
-    className={clsx('mb-5 flex items-center justify-between border-b border-border pb-4', className)}
+    className={clsx('mb-6 flex items-center justify-between gap-4 border-b border-border pb-5', className)}
     {...props}
   >
     {children}
@@ -65,7 +68,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({
   ...props
 }) => (
   <h3
-    className={clsx('text-section-title text-text-primary', className)}
+    className={clsx('text-section-title text-primary', className)}
     {...props}
   >
     {children}
@@ -81,7 +84,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({
   children,
   ...props
 }) => (
-  <p className={clsx('text-sm text-text-secondary', className)} {...props}>
+  <p className={clsx('text-sm font-medium text-accent-dark', className)} {...props}>
     {children}
   </p>
 )

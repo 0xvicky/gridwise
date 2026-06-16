@@ -7,34 +7,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FFFFFF',
-        surface: '#F7FAF8',
-        border: '#E5ECE8',
+        background: '#F8F9FA',
+        surface: '#FFFFFF',
+        border: '#E5E7EB',
         primary: {
-          DEFAULT: '#0F9D58',
-          dark: '#0B7A44',
-          light: '#E8F5EE',
+          DEFAULT: '#155959',
+          dark: '#124B4B',
+          light: '#E8F1F1',
         },
-        success: '#16A34A',
+        accent: {
+          DEFAULT: '#F38D26',
+          dark: '#E67F16',
+          light: '#FFF3E8',
+        },
+        success: '#22C55E',
         warning: '#F59E0B',
         critical: '#DC2626',
-        'text-primary': '#111827',
+        'text-primary': '#1F2937',
         'text-secondary': '#6B7280',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
-        'page-title': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '600' }],
-        'section-title': ['1.5rem', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'page-title': ['3rem', { lineHeight: '1.05', letterSpacing: '0', fontWeight: '800' }],
+        'section-title': ['1.5rem', { lineHeight: '1.25', letterSpacing: '0', fontWeight: '700' }],
       },
       borderRadius: {
         card: '16px',
       },
       boxShadow: {
-        card: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
-        'card-hover': '0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03)',
-        subtle: '0 1px 2px rgba(15, 157, 88, 0.06)',
+        card: '0 10px 30px rgba(31, 41, 55, 0.04), 0 1px 2px rgba(31, 41, 55, 0.04)',
+        'card-hover': '0 18px 45px rgba(31, 41, 55, 0.08), 0 4px 10px rgba(21, 89, 89, 0.06)',
+        subtle: '0 8px 20px rgba(243, 141, 38, 0.18)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',

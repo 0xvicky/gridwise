@@ -43,10 +43,10 @@ export const Timeline: React.FC<TimelineProps> = ({ events, className }) => (
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-4">
-            <p className="text-sm font-medium text-text-primary">{event.title}</p>
-            <span className="shrink-0 text-xs text-text-secondary">{event.time}</span>
+            <p className="text-sm font-semibold text-primary">{event.title}</p>
+            <span className="shrink-0 text-xs font-medium text-accent">{event.time}</span>
           </div>
-          <p className="mt-1 text-sm text-text-secondary">{event.description}</p>
+          <p className="mt-1 text-sm font-medium text-accent-dark">{event.description}</p>
         </div>
       </motion.div>
     ))}

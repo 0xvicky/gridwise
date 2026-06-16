@@ -17,11 +17,16 @@ export const useAsset = (id: string | undefined) => {
   })
 }
 
-export const useAssetInspections = (id: string | undefined) => {
+export const useAssetInspections = (
+  id: string | undefined,
+  page = 1,
+  pageSize = 5
+) => {
   return useQuery({
-    queryKey: ['assets', id, 'inspections'],
-    queryFn: () => assetsService.getInspections(id!),
+    queryKey: ['assets', id, 'inspections', page, pageSize],
+    queryFn: () => assetsService.getInspections(id!, page, pageSize),
     enabled: !!id,
+    placeholderData: (previousData) => previousData,
     staleTime: 0,
     refetchOnMount: 'always',
   })
@@ -32,6 +37,18 @@ export const useCreateAsset = () => {
 
   return useMutation({
     mutationFn: (data: CreateAssetRequest) => assetsService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assets'] })
+    },
+  })
+}
+
+export const useAssetForecast=()=>{
+  const queryClient = useQueryClient()
+
+
+  return useMutation({
+    mutationFn: (data: string) => assetsService.forecastAsset(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
     },

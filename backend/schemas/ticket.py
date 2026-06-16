@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from uuid import UUID
 from datetime import date
 from models.enums import TicketPriority, TicketStatus
 
 
 class TicketResponse(BaseModel):
-    ticket_id: UUID = Field(alias="id")
+    id: UUID
     priority: TicketPriority
     status: TicketStatus
     title: str

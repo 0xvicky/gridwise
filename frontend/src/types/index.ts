@@ -30,6 +30,7 @@ export interface CreateAssetRequest {
 export interface Inspection {
   inspection_id: string
   asset_id: string
+  asset_name:string
   pilot_id: string
   capture_date: string
   validation_status: ValidationStatus
@@ -59,6 +60,7 @@ export interface Defect {
   location_description: string
   confidence_score: number
   ai_reasoning: string
+  ai_recommendation:string | null
 }
 
 export interface DefectResponse {
@@ -73,7 +75,6 @@ export interface Ticket {
   title: string
   assigned_team: string | null
   due_date: string
-  ticket_id?: string
 }
 
 export interface TicketDetails extends Ticket {
@@ -98,4 +99,27 @@ export interface TicketStatusUpdateResponse {
   ticket_id: string
   old_status: TicketStatus
   new_status: TicketStatus
+}
+
+export interface ForecastGenerationResponse {
+  forecast_id: string
+}
+
+export interface Forecast {
+  id: string
+  risk_30_days: number
+  risk_60_days: number
+  risk_90_days: number
+  degradation_rate: number
+  recommended_action: string
+  at_risk_component: string
+  reasoning: string
+}
+
+export interface PaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  page_size: number
+  total_pages: number
 }

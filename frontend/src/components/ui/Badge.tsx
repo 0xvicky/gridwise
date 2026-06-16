@@ -9,11 +9,11 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-primary-light text-primary-dark border-primary/10',
-  success: 'bg-primary-light text-primary-dark border-primary/10',
-  warning: 'bg-amber-50 text-warning border-amber-100',
+  default: 'bg-primary-light text-primary-dark border-primary/15',
+  success: 'bg-green-50 text-success border-green-100',
+  warning: 'bg-accent-light text-accent-dark border-orange-100',
   critical: 'bg-red-50 text-critical border-red-100',
-  neutral: 'bg-surface text-text-secondary border-border',
+  neutral: 'bg-background text-text-secondary border-border',
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -24,7 +24,7 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => (
   <span
     className={clsx(
-      'inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium tracking-wide',
+      'inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold tracking-wide',
       variantStyles[variant],
       className
     )}

@@ -20,3 +20,4 @@ class Defects(Base):
     confidence_score:Mapped[float] = mapped_column(Float)
     ai_reasoning:Mapped[str] = mapped_column(Text)
     raw_ai_response:Mapped[dict] = mapped_column(JSON)
+    ai_recommendation:Mapped[str] 

@@ -27,9 +27,9 @@ function TransmissionTower() {
 
   const lineObjects = useMemo(() => {
     const material = new THREE.LineBasicMaterial({
-      color: '#0F9D58',
+      color: '#155959',
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.36,
     })
     return TOWER_LINES.map((points) => {
       const geometry = new THREE.BufferGeometry().setFromPoints(

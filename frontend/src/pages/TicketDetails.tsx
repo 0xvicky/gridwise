@@ -61,7 +61,7 @@ const TicketDetails: React.FC = () => {
           <ChevronLeft size={16} />
           Back
         </button>
-        <h1 className="text-page-title text-text-primary">{ticket.title}</h1>
+        <h1 className="text-page-title text-primary">{ticket.title}</h1>
         <p className="mt-2 font-mono text-sm text-text-secondary">{ticket.id}</p>
       </div>
 

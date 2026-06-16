@@ -1,6 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { inspectionService } from '@/services/inspection'
 
+export const useInspections = ()=>{
+  return useQuery({
+    queryKey:['inspections'],
+    queryFn:inspectionService.getAll,
+  })
+}
 export const useInspectionSummary = (inspectionId: string | undefined) => {
   return useQuery({
     queryKey: ['inspection', inspectionId],
@@ -31,13 +37,17 @@ export const useUploadInspection = () => {
   return useMutation({
     mutationFn: ({
       assetId,
+      assetName,
       pilotId,
       files,
+      aiSwitch,
     }: {
       assetId: string
+      assetName: string
       pilotId: string
       files: File[]
-    }) => inspectionService.upload(assetId, pilotId, files),
+      aiSwitch: boolean
+    }) => inspectionService.upload(assetId, assetName, pilotId, files, aiSwitch),
     onSuccess: (_, { assetId }) => {
       queryClient.invalidateQueries({ queryKey: ['inspections'] })
       queryClient.invalidateQueries({ queryKey: ['assets', assetId, 'inspections'] })
@@ -53,6 +63,7 @@ export const useGenerateReport = () => {
       inspectionService.generateReport(inspectionId),
     onSuccess: (_, inspectionId) => {
       queryClient.invalidateQueries({ queryKey: ['inspection', inspectionId] })
+      queryClient.invalidateQueries({ queryKey: ['check-report', inspectionId] })
     },
   })
 }
@@ -61,6 +72,14 @@ export const useDownloadReport = () => {
   return useMutation({
     mutationFn: (inspectionId: string) =>
       inspectionService.downloadReport(inspectionId),
+  })
+}
+
+export const useCheckReport = (inspectionId:string|undefined)=>{
+  return useQuery({
+    queryKey:['check-report',inspectionId],
+    queryFn:()=>inspectionService.checkReport(inspectionId!),
+    enabled:!!inspectionId,
   })
 }
 
@@ -74,6 +93,7 @@ export const useGenerateTickets = () => {
       queryClient.invalidateQueries({
         queryKey: ['inspection-tickets', inspectionId],
       })
+      queryClient.invalidateQueries({ queryKey: ['tickets'] })
     },
   })
 }

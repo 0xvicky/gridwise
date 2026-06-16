@@ -19,7 +19,7 @@ export const HealthScoreRing: React.FC<HealthScoreRingProps> = ({
   const offset = circumference - (score / 100) * circumference
 
   const color =
-    score >= 80 ? '#0F9D58' : score >= 60 ? '#F59E0B' : '#DC2626'
+    score >= 80 ? '#22C55E' : score >= 60 ? '#F38D26' : '#DC2626'
 
   return (
     <div className={clsx('relative inline-flex items-center justify-center', className)}>
@@ -29,7 +29,7 @@ export const HealthScoreRing: React.FC<HealthScoreRingProps> = ({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#E5ECE8"
+          stroke="#E5E7EB"
           strokeWidth={stroke}
         />
         <motion.circle
@@ -47,8 +47,8 @@ export const HealthScoreRing: React.FC<HealthScoreRingProps> = ({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-semibold text-text-primary">{score}</span>
-        <span className="text-xs text-text-secondary">Health</span>
+        <span className="text-3xl font-bold text-primary">{score}</span>
+        <span className="text-xs font-medium text-text-secondary">Health</span>
       </div>
     </div>
   )

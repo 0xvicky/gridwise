@@ -7,6 +7,7 @@ from models.forecast import Forecast
 
 
 def ai_forecast(input:dict):
+    
     return {
         "risk_30_days":75,
         "risk_60_days":83,

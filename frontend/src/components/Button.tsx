@@ -12,18 +12,18 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-white hover:bg-primary-dark shadow-subtle active:scale-[0.98]',
+    'bg-accent text-white shadow-subtle hover:bg-accent-dark hover:shadow-[0_10px_22px_rgba(243,141,38,0.22)] active:scale-[0.98]',
   secondary:
-    'bg-surface text-text-primary border border-border hover:bg-border/40 active:scale-[0.98]',
+    'border border-primary bg-surface text-primary shadow-sm shadow-text-primary/[0.02] hover:bg-primary-light hover:text-primary-dark active:scale-[0.98]',
   outline:
-    'border border-border text-text-primary hover:border-primary/30 hover:bg-primary-light active:scale-[0.98]',
+    'border border-primary bg-surface text-primary shadow-sm shadow-text-primary/[0.02] hover:bg-primary-light hover:text-primary-dark active:scale-[0.98]',
   ghost:
-    'text-text-secondary hover:text-text-primary hover:bg-surface active:scale-[0.98]',
+    'text-text-secondary hover:bg-primary-light hover:text-primary active:scale-[0.98]',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-sm rounded-lg',
-  md: 'h-10 px-4 text-sm rounded-lg',
+  sm: 'h-8 px-3 text-sm rounded-xl',
+  md: 'h-10 px-4 text-sm rounded-xl',
   lg: 'h-11 px-6 text-base rounded-xl',
 }
 
@@ -34,7 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => (
     <button
       className={clsx(
-        'inline-flex items-center justify-center font-medium transition-all duration-150 ease-premium focus-ring disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center whitespace-nowrap font-semibold transition-all duration-200 ease-premium focus-ring disabled:cursor-not-allowed disabled:opacity-50',
         variantStyles[variant],
         sizeStyles[size],
         className

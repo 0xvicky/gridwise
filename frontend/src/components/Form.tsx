@@ -8,7 +8,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     <input
       ref={ref}
       className={clsx(
-        'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/40',
+        'field-control flex h-11 w-full px-3.5 py-2 text-sm',
         className
       )}
       {...props}
@@ -25,7 +25,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     <select
       ref={ref}
       className={clsx(
-        'flex h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary transition-colors focus-ring focus:border-primary/40',
+        'field-control flex h-11 w-full px-3.5 py-2 text-sm',
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     <textarea
       ref={ref}
       className={clsx(
-        'flex min-h-[100px] w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/40',
+        'field-control flex min-h-[120px] w-full px-3.5 py-2.5 text-sm',
         className
       )}
       {...props}
@@ -57,7 +57,7 @@ interface FormGroupProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const FormGroup: React.FC<FormGroupProps> = ({ className, children, ...props }) => (
-  <div className={clsx('flex flex-col gap-2', className)} {...props}>
+  <div className={clsx('flex flex-col gap-2.5', className)} {...props}>
     {children}
   </div>
 )
@@ -70,7 +70,7 @@ export const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => (
     <label
       ref={ref}
-      className={clsx('text-sm font-medium text-text-primary', className)}
+      className={clsx('text-sm font-semibold text-primary', className)}
       {...props}
     />
   )

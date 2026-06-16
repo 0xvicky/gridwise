@@ -4,7 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Upload, CheckCircle2, X, FileImage } from 'lucide-react'
 import { useUploadInspection } from '@/hooks/useInspection'
 import { useAssets } from '@/hooks/useAssets'
-import { Button, Card, CardContent, FormGroup, Label, Input, Select } from '@/components'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  FormGroup,
+  Label,
+  Input,
+  Select,
+  ToggleSwitch,
+} from '@/components'
 
 const InspectionUpload: React.FC = () => {
   const navigate = useNavigate()
@@ -18,6 +28,7 @@ const InspectionUpload: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [uploadedInspectionId, setUploadedInspectionId] = useState<string>('')
+  const [aiSwitch, setAiSwitch] = useState(false)
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -43,11 +54,12 @@ const InspectionUpload: React.FC = () => {
   }
 
   const handleSubmit = (e: React.FormEvent) => {
+    const selectedAsset = assets?.find((a) => a.id === assetId)
+    const assetName = selectedAsset?.name || ''
     e.preventDefault()
-    if (!assetId || !pilotId || files.length === 0) return
-
+    if (!assetId || !assetName || !pilotId || files.length === 0) return
     uploadInspection(
-      { assetId, pilotId, files },
+      { assetId, assetName, pilotId, files, aiSwitch },
       {
         onSuccess: (data) => {
           setUploadSuccess(true)
@@ -68,16 +80,14 @@ const InspectionUpload: React.FC = () => {
         >
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary-light">
-                <CheckCircle2 className="h-7 w-7 text-primary" />
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-50">
+                <CheckCircle2 className="h-7 w-7 text-success" />
               </div>
-              <h2 className="text-2xl font-semibold text-text-primary">Upload Successful</h2>
+              <h2 className="text-2xl font-semibold text-primary">Upload Successful</h2>
               <p className="mt-2 text-sm text-text-secondary">
                 Your inspection has been uploaded and is being processed.
               </p>
-              <p className="mt-4 font-mono text-xs text-text-secondary">
-                {uploadedInspectionId}
-              </p>
+              <p className="mt-4 font-mono text-xs text-text-secondary">{uploadedInspectionId}</p>
               <p className="mt-6 text-xs text-text-secondary">
                 Redirecting to inspection details...
               </p>
@@ -91,7 +101,7 @@ const InspectionUpload: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-page-title text-text-primary">Upload Inspection</h1>
+        <h1 className="text-page-title text-primary">Upload Inspection</h1>
         <p className="mt-2 text-base text-text-secondary">
           Upload drone imagery for AI-powered defect analysis
         </p>
@@ -105,7 +115,9 @@ const InspectionUpload: React.FC = () => {
               <Select
                 id="asset"
                 value={assetId}
-                onChange={(e) => setAssetId(e.target.value)}
+                onChange={(e) => {
+                  setAssetId(e.target.value)
+                }}
                 required
               >
                 <option value="">Select an asset</option>
@@ -136,19 +148,17 @@ const InspectionUpload: React.FC = () => {
                 onDrop={handleDrop}
                 className={`relative rounded-card border-2 border-dashed px-6 py-14 transition-all duration-300 ${
                   isDragging
-                    ? 'border-primary/40 bg-primary-light/50'
-                    : 'border-border bg-surface/50 hover:border-primary/20'
+                    ? 'border-accent/60 bg-accent-light'
+                    : 'border-border bg-background hover:border-primary/30 hover:bg-primary-light/35'
                 }`}
               >
                 <div className="text-center">
                   <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-light">
                     <Upload className="h-5 w-5 text-primary" />
                   </div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Drag and drop images here
-                  </p>
+                  <p className="text-sm font-medium text-primary">Drag and drop images here</p>
                   <p className="mt-1 text-sm text-text-secondary">or</p>
-                  <label className="mt-2 inline-block cursor-pointer text-sm font-medium text-primary hover:text-primary-dark">
+                  <label className="mt-2 inline-block cursor-pointer text-sm font-semibold text-accent hover:text-accent-dark">
                     browse files
                     <input
                       type="file"
@@ -175,11 +185,11 @@ const InspectionUpload: React.FC = () => {
                       {files.map((file, idx) => (
                         <div
                           key={`${file.name}-${idx}`}
-                          className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2.5"
+                          className="flex items-center justify-between rounded-xl border border-border bg-background px-3 py-2.5"
                         >
                           <div className="flex items-center gap-2">
                             <FileImage size={14} className="text-text-secondary" />
-                            <span className="text-sm text-text-primary">{file.name}</span>
+                            <span className="break-all text-sm text-text-primary">{file.name}</span>
                           </div>
                           <button
                             type="button"
@@ -196,7 +206,33 @@ const InspectionUpload: React.FC = () => {
               )}
             </AnimatePresence>
 
-            <div className="flex gap-3 border-t border-border pt-6">
+            <div className="rounded-card border border-border bg-background/70 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Label htmlFor="ai-analysis-toggle">AI Analysis</Label>
+                    <Badge variant={aiSwitch ? 'warning' : 'default'}>
+                      {aiSwitch ? 'Vision AI Mode' : 'Mock Mode'}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    Enable Vision AI inspection analysis. Disable to use mock analysis.
+                  </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                    AI Analysis: {aiSwitch ? 'ON' : 'OFF'}
+                  </p>
+                </div>
+                <ToggleSwitch
+                  id="ai-analysis-toggle"
+                  checked={aiSwitch}
+                  onChange={setAiSwitch}
+                  disabled={isPending}
+                  label="AI Analysis"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
               <Button
                 type="submit"
                 disabled={!assetId || !pilotId || files.length === 0}

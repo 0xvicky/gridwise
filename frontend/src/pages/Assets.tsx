@@ -64,7 +64,7 @@ const Assets: React.FC = () => {
               placeholder="Search assets..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-surface pl-9 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-ring focus:border-primary/30"
+              className="field-control h-10 w-full bg-background pl-9 pr-4 text-sm"
             />
           </div>
         </div>
@@ -83,9 +83,7 @@ const Assets: React.FC = () => {
               <EmptyState
                 title="No assets found"
                 description={
-                  search
-                    ? 'Try adjusting your search'
-                    : 'Create your first asset to get started'
+                  search ? 'Try adjusting your search' : 'Create your first asset to get started'
                 }
                 action={
                   !search && (
@@ -114,7 +112,7 @@ const Assets: React.FC = () => {
                     <TableCell className="font-medium">
                       <Link
                         to={`/assets/${asset.id}`}
-                        className="text-text-primary transition-colors hover:text-primary"
+                        className="text-primary transition-colors hover:text-accent"
                       >
                         {asset.name}
                       </Link>
@@ -123,9 +121,7 @@ const Assets: React.FC = () => {
                       {getAssetTypeLabel(asset.asset_type)}
                     </TableCell>
                     <TableCell>{asset.zone}</TableCell>
-                    <TableCell className="text-text-secondary">
-                      {asset.installed_year}
-                    </TableCell>
+                    <TableCell className="text-text-secondary">{asset.installed_year}</TableCell>
                     <TableCell className="font-mono text-xs text-text-secondary">
                       {asset.latitude.toFixed(4)}, {asset.longitude.toFixed(4)}
                     </TableCell>
@@ -139,6 +135,11 @@ const Assets: React.FC = () => {
                         <Link to={`/inspection/upload?asset=${asset.id}`}>
                           <Button variant="outline" size="sm">
                             Inspect
+                          </Button>
+                        </Link>
+                        <Link to={`/assets/${asset.id}/forecast`}>
+                          <Button variant="outline" size="sm">
+                            Forecast
                           </Button>
                         </Link>
                       </div>

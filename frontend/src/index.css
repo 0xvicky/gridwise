@@ -13,6 +13,23 @@ body {
   color-scheme: light;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply text-primary;
+}
+
+a {
+  @apply text-primary transition-colors;
+}
+
+a:hover {
+  @apply text-accent;
+}
+
 * {
   @apply border-border;
 }
@@ -35,12 +52,16 @@ body {
 }
 
 ::selection {
-  background-color: rgba(15, 157, 88, 0.15);
-  color: #0B7A44;
+  background-color: rgba(243, 141, 38, 0.18);
+  color: #124B4B;
 }
 
 @layer components {
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  .field-control {
+    @apply rounded-xl border border-border bg-surface text-text-primary shadow-sm shadow-text-primary/[0.02] transition-all duration-200 placeholder:text-text-secondary/60 hover:border-primary/25 focus-ring focus:border-primary/50;
   }
 }

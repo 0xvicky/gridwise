@@ -45,6 +45,14 @@ async def create(inspection_id: UUID, db: AsyncSession) -> list[UUID]:
         select(Defects).where(Defects.inspection == inspection_id)
     )
     defects = result.scalars().all()
+
+    existing_result = await db.execute(
+        select(Ticket).where(Ticket.inspection_id == inspection_id)
+    )
+    existing_tickets = existing_result.scalars().all()
+    if existing_tickets:
+        return [ticket.id for ticket in existing_tickets]
+
     priorities = calculate_priority(defects)
     tickets = []
 

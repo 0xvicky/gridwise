@@ -21,6 +21,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 
 
+
+
 def write_pdf(
     file_path: Path,
     asset: Asset,
@@ -36,6 +38,14 @@ def write_pdf(
     )
 
     styles = getSampleStyleSheet()
+
+    wrap_style = ParagraphStyle(
+        "WrapStyle",
+        parent=styles["BodyText"],
+        fontSize=9,
+        leading=12,
+        wordWrap="CJK",
+    )
 
     title_style = ParagraphStyle(
         "CustomTitle",
@@ -203,18 +213,40 @@ def write_pdf(
         )
 
     else:
-
         for idx, defect in enumerate(defects, start=1):
 
             defect_table = Table(
                 [
                     ["Defect #", str(idx)],
-                    ["Type", defect.defect_type.value],
-                    ["Severity", defect.severity.value],
-                    ["Location", defect.location_description],
-                    ["Confidence", f"{defect.confidence_score:.2f}"],
+                    ["Type", defect.defect_type.value.upper()],
+                    ["Severity", defect.severity.value.upper()],
+                    [
+                        "Location",
+                        Paragraph(
+                            defect.location_description,
+                            wrap_style,
+                        ),
+                    ],
+                    [
+                        "Confidence",
+                        f"{defect.confidence_score:.2f}",
+                    ],
+                    [
+                        "AI Reasoning",
+                        Paragraph(
+                            defect.ai_reasoning,
+                            wrap_style,
+                        ),
+                    ],
+                    [
+                        "AI Recommendation",
+                        Paragraph(
+                            defect.ai_recommendation,
+                            wrap_style,
+                        ),
+                    ],
                 ],
-                colWidths=[180, 250],
+                colWidths=[100, 400],
             )
 
             defect_table.setStyle(
@@ -222,19 +254,16 @@ def write_pdf(
                     [
                         ("GRID", (0, 0), (-1, -1), 1, colors.black),
                         ("BACKGROUND", (0, 0), (0, -1), colors.whitesmoke),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                        ("TOPPADDING", (0, 0), (-1, -1), 6),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                     ]
                 )
             )
 
             content.append(defect_table)
-
-            content.append(
-                Paragraph(
-                    f"<b>AI Recommendation:</b><br/>{defect.ai_reasoning}",
-                    styles["BodyText"],
-                )
-            )
-
             content.append(Spacer(1, 15))
 
     # ==================================================
@@ -256,8 +285,13 @@ def write_pdf(
         "message": "pdf generated",
         "path": str(file_path),
     }
+    
 
-
+def is_report(inspection_id:UUID,asset_id:UUID):
+    report_path=f"{os.getenv('SAVE_DIR') or 'SAVE_DIR'}/{asset_id}/{inspection_id}/reports/ai_report.pdf"
+    return Path(report_path).exists()
+    
+    
 async def generate(inspection_id: UUID, db: AsyncSession):
 
     inspection = await db.get(Inspection, inspection_id)

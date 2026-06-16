@@ -8,7 +8,7 @@ from fastapi import (
     HTTPException,
 )
 from fastapi.responses import FileResponse
-from datetime import date
+from datetime import datetime, timezone
 from uuid import UUID
 from schemas.inspection import (
     InspectionUploadResponse,
@@ -34,18 +34,40 @@ from models.inspection import Inspection
 from models.ticket import Ticket
 from models.enums import ValidationStatus, AnalysisStatus
 from models.defects import Defects
+from models.asset import Asset
 from schemas.defect import DefectResponse, DefectDescription
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from database import get_async_db
 from pathlib import Path
 from dotenv import load_dotenv
+from services.generate_report import is_report
 
 router = APIRouter(prefix="/inspection", tags=["inspection"])
 
 load_dotenv()
 
 
+@router.get("/",response_model=list[InspectionSummaryResponse])
+async def get_all(db:AsyncSession=Depends(get_async_db)):
+    
+    result= await db.execute(select(Inspection).order_by(Inspection.capture_date.desc()))
+    inspections=result.scalars().all()
+    res=[]
+    for inspection in inspections:
+        asset=await db.get(Asset,inspection.asset_id)
+        
+        res.append(InspectionSummaryResponse(
+            inspection_id=inspection.id,
+            asset_id=inspection.asset_id,
+            asset_name=asset.name if asset else "Unknown Asset",
+            analysis_status=inspection.analysis_status, 
+            capture_date=inspection.capture_date,
+            pilot_id=inspection.pilot_id,
+            validation_status=inspection.validation_status,
+            health_score=inspection.health_score,
+        ))
+    return res
 @router.get("/{inspection_id}/validation")
 async def get_files_status(
     inspection_id: UUID, db: AsyncSession = Depends(get_async_db)
@@ -53,7 +75,7 @@ async def get_files_status(
     result = await db.execute(select(Inspection).where(Inspection.id == inspection_id))
     inspection = result.scalar_one_or_none()
     if not inspection:
-        return {"error": "inspection not found"}
+        raise HTTPException(status_code=404, detail="inspection not found")
 
     failed_files = inspection.validation_notes.get("failed_files", [])
 
@@ -66,14 +88,17 @@ async def get_files_status(
 @router.post("/upload", response_model=InspectionUploadResponse)
 async def inspection_upload(
     asset_id: UUID = Form(...),
+    asset_name:str=Form(...),
     pilot_id: str = Form(...),
+    ai_switch:bool=Form(...),
     files: list[UploadFile] = File(...),
     db: AsyncSession = Depends(get_async_db),
 ):
     # store the metadata in db
-    today = date.today()
+    today = datetime.now(timezone.utc)
     inspection = Inspection(
         asset_id=asset_id,
+        asset_name=asset_name,
         pilot_id=pilot_id,
         capture_date=today,
         capture_types=["visual"],
@@ -99,17 +124,30 @@ async def inspection_upload(
                     "reason": reason,
                 }
             )
-
+    
     if failed_files:
         inspection.validation_status = ValidationStatus.FAILED
         inspection.validation_notes = {"failed_files": failed_files}
+        if len(failed_files) == len(files):
+            inspection.analysis_status = AnalysisStatus.FAILED
+            await db.commit()
+            raise HTTPException(
+                status_code=400,
+                detail="All files failed validation. Please check the validation notes.",
+            )
     else:
         inspection.validation_status = ValidationStatus.PASSED
 
     inspection.analysis_status = AnalysisStatus.PROCESSING
     await db.commit()
     await db.refresh(inspection)
-    await analyze_inspection(inspection, db)
+    try:
+        await analyze_inspection(inspection, db, ai_switch)
+    except Exception as exc:
+        inspection.analysis_status = AnalysisStatus.FAILED
+        await db.commit()
+        raise HTTPException(status_code=500, detail="Inspection analysis failed") from exc
+
     return InspectionUploadResponse(
         inspection_id=inspection.id, validation_status=inspection.validation_status
     )
@@ -194,6 +232,7 @@ async def get_inspection_summary(
     return InspectionSummaryResponse(
         inspection_id=inspection.id,
         asset_id=inspection.asset_id,
+        asset_name=inspection.asset_name,
         pilot_id=inspection.pilot_id,
         capture_date=inspection.capture_date,
         validation_status=inspection.validation_status,
@@ -231,3 +270,18 @@ async def create_ticket(
     # call the ticket generation service
     tickets = await create(inspection_id, db)
     return {"tickets_generated": len(tickets), "ticket_ids": tickets}
+
+
+#check report downloaded
+@router.get("/{inspection_id}/is_report")
+async def is_report_downloaded(inspection_id:UUID, db:AsyncSession=Depends(get_async_db)):
+    inspection = await db.get(Inspection, inspection_id)
+    if not inspection:
+        raise HTTPException(status_code=404, detail="inspection not found")
+
+    asset_id = inspection.asset_id
+    is_rep = is_report(inspection_id,asset_id)
+    return {"report_status":is_rep}
+
+
+# /mnt/data/Code/ai-projects/gridwise/backend/storage/3baf915e-53a1-4832-a13b-01a47fb97029/60a6ca07-a839-43b8-b4b1-589cafea1bf1

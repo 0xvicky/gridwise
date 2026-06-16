@@ -43,7 +43,7 @@ const CreateAsset: React.FC = () => {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-page-title text-text-primary">Create Asset</h1>
+        <h1 className="text-page-title text-primary">Create Asset</h1>
         <p className="mt-2 text-base text-text-secondary">
           Register a new infrastructure asset in the system
         </p>
@@ -86,7 +86,7 @@ const CreateAsset: React.FC = () => {
               </Select>
             </FormGroup>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <FormGroup>
                 <Label htmlFor="latitude">Latitude *</Label>
                 <Input
@@ -116,7 +116,7 @@ const CreateAsset: React.FC = () => {
               </FormGroup>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <FormGroup>
                 <Label htmlFor="zone">Zone *</Label>
                 <Input
@@ -143,7 +143,7 @@ const CreateAsset: React.FC = () => {
               </FormGroup>
             </div>
 
-            <div className="flex gap-3 border-t border-border pt-6">
+            <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
               <Button type="submit" isLoading={isPending}>
                 Create Asset
               </Button>
