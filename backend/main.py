@@ -12,7 +12,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "https://gridwise.onrender.com",
-        "gridwise-4t9y.vercel.app"
+        "https://gridwise-4t9y.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
