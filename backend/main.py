@@ -11,7 +11,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://gridwise.onrender.com"
+        "https://gridwise.onrender.com",
+        "gridwise-4t9y.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
