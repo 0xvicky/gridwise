@@ -103,6 +103,7 @@ export interface TicketStatusUpdateResponse {
 
 export interface ForecastGenerationResponse {
   forecast_id: string
+  cached: boolean
 }
 
 export interface Forecast {
@@ -114,6 +115,7 @@ export interface Forecast {
   recommended_action: string
   at_risk_component: string
   reasoning: string
+  cached?: boolean
 }
 
 export interface PaginatedResponse<T> {

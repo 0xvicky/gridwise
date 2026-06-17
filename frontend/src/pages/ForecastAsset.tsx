@@ -1,8 +1,9 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle, Brain, ChevronLeft, Component, Sparkles, TrendingDown } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Card, CardContent, CardHeader, CardTitle, PageHeader } from '@/components'
-import { Alert, Error, LoadingSpinner } from '@/components/Loading'
+import { Alert, Error as ErrorState, LoadingSpinner } from '@/components/Loading'
 import { RiskCard } from '@/components/forecast/RiskCard'
 import { RiskChart } from '@/components/forecast/RiskChart'
 import { useAsset } from '@/hooks/useAssets'
@@ -22,6 +23,11 @@ const ForecastAsset = () => {
     useGenerateForecast()
   const forecast = savedForecast ?? generatedForecast
 
+  useEffect(() => {
+    if (!assetId || !generatedForecast || forecastId === generatedForecast.id) return
+    navigate(`/assets/${assetId}/forecast/${generatedForecast.id}`, { replace: true })
+  }, [assetId, forecastId, generatedForecast, navigate])
+
   const handleGenerate = () => {
     if (!assetId) return
     reset()
@@ -36,8 +42,13 @@ const ForecastAsset = () => {
 
   if (forecastId && forecastLoading) return <LoadingSpinner />
 
+  const generationErrorMessage =
+    error && typeof error === 'object' && 'message' in error
+      ? String(error.message)
+      : 'Forecast generation failed. Please try again.'
+
   if (forecastId && forecastLoadError) {
-    return <Error message="Failed to load forecast" onRetry={() => refetchForecast()} />
+    return <ErrorState message="Failed to load forecast" onRetry={() => refetchForecast()} />
   }
 
   return (
@@ -64,7 +75,7 @@ const ForecastAsset = () => {
       {error && (
         <Alert
           type="error"
-          message="Forecast generation failed. Please try again."
+          message={generationErrorMessage}
           onClose={reset}
         />
       )}
@@ -86,7 +97,7 @@ const ForecastAsset = () => {
             </div>
             <Button size="lg" onClick={handleGenerate} isLoading={isPending} disabled={!assetId}>
               <Brain className="mr-2 h-4 w-4" />
-              {forecast ? 'Regenerate AI Forecast' : 'Generate AI Forecast'}
+              Generate AI Forecast
             </Button>
           </CardContent>
         </Card>
