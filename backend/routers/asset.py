@@ -104,8 +104,8 @@ async def create_asset(payload: AssetCreate, db: AsyncSession = Depends(get_asyn
 
 @router.post("/{asset_id}/forecast")
 async def forecast_asset(asset_id:UUID,db:AsyncSession=Depends(get_async_db)):
-  fid= await forecast(asset_id, db)
-  return {"forecast_id":fid}
+  fid, cached = await forecast(asset_id, db)
+  return {"forecast_id": fid, "cached": cached}
 
 
 @router.get("/{asset_id}/forecasts", response_model=PaginatedForecastResponse)
@@ -124,14 +124,16 @@ async def get_asset_forecasts(
     )
     total = total_result.scalar_one()
 
-    result = await db.execute(
-        select(Forecast)
-        .where(Forecast.asset_id == asset_id)
-        .order_by(Forecast.id.desc())
-        .offset((page - 1) * page_size)
-        .limit(page_size)
+    result = await db.execute(select(Forecast).where(Forecast.asset_id == asset_id))
+    all_forecasts = sorted(
+        result.scalars().all(),
+        key=lambda item: (item.inspection_history_snapshot or {})
+        .get("history", [{}])[0]
+        .get("capture_date", ""),
+        reverse=True,
     )
-    forecasts = result.scalars().all()
+    start = (page - 1) * page_size
+    forecasts = all_forecasts[start : start + page_size]
 
     return PaginatedForecastResponse(
         items=forecasts,

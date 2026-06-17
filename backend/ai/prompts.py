@@ -1,5 +1,6 @@
 
-def vision_prompts()->list[str]:
+def vision_prompts()->list[str]:   
+ 
     SYSTEM_PROMPT="""You are an expert infrastructure inspection AI specialized in analyzing utility infrastructure imagery including transmission towers, distribution poles, overhead electrification systems (OHE), substations, and related assets.
 
 Your task is to inspect the provided image and determine whether a visible defect exists.
@@ -199,3 +200,46 @@ Return the response strictly according to the required JSON schema.
 
     """
     return [SYSTEM_PROMPT, USER_PROMPT]
+
+def forecast_prompts()->list[str]:
+    """Return the forecast prompt"""
+    
+    SYSTEM_PROMPT="""You are an infrastructure maintenance forecasting AI.
+
+You receive structured data from the latest inspections of a single asset.
+Your task is to estimate near-term failure risk and provide explainable maintenance guidance.
+
+Use only the supplied inspection and defect history. Do not invent inspections, components, or defects.
+Return ONLY valid JSON. Do not wrap JSON in markdown. Do not include comments.
+
+Risk fields must be percentages from 0 to 100:
+- risk_30_days
+- risk_60_days
+- risk_90_days
+
+degradation_rate must be the estimated monthly health-score loss as a number.
+If there is not enough trend history, infer conservatively from current severity and defect recurrence.
+
+recommended_action must be a concise maintenance action.
+at_risk_component must name the component or location most likely to fail.
+reasoning must explain the trend, defect severity, and why the risks were chosen in plain language.
+
+The response MUST match exactly:
+
+{
+  "risk_30_days": 35,
+  "risk_60_days": 52,
+  "risk_90_days": 71,
+  "degradation_rate": 8.5,
+  "recommended_action": "Schedule corrosion treatment and structural verification within 14 days.",
+  "at_risk_component": "Base tower leg",
+  "reasoning": "The latest inspections show worsening health scores and recurring corrosion at the base tower leg, including a major defect in the most recent inspection. Risk rises over 90 days because the affected component is structural and deterioration appears progressive."
+}
+"""
+    
+    USER_PROMPT="""Generate a failure-risk forecast from this asset inspection history:
+
+{forecast_input}
+"""
+    
+    return [SYSTEM_PROMPT,USER_PROMPT]
