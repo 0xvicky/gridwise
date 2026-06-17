@@ -7,7 +7,6 @@ import {
   Ticket,
   Menu,
   Search,
-  TrendingUpDownIcon,
   Bell,
   X,
   Zap,
@@ -62,11 +61,16 @@ export const Sidebar: React.FC = () => {
       >
         <div className="border-b border-border px-5 py-6">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm">
-              <Zap size={16} className="text-white" strokeWidth={2.5} />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white shadow-sm">
+              <div className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
+              <div className="absolute bottom-1.5 left-1.5 h-1.5 w-4 rounded-full bg-accent/25" />
+              <Zap size={20} className="relative text-primary" strokeWidth={2.7} fill="currentColor" />
             </div>
             <div>
-              <span className="text-lg font-extrabold text-primary">GridWise</span>
+              <span className="text-lg font-extrabold">
+                <span className="text-primary">Grid</span>
+                <span className="text-accent">Wise</span>
+              </span>
               <p className="mt-0.5 max-w-[11rem] text-[11px] leading-4 text-text-secondary">
                 Powered by AI Infrastructure Intelligence
               </p>

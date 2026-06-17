@@ -33,12 +33,9 @@ export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
     )}
   >
     <motion.span
-      layout
+      animate={{ x: checked ? 20 : 0 }}
       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-      className={clsx(
-        'absolute left-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200',
-        checked && 'translate-x-5'
-      )}
+      className="absolute left-1 h-5 w-5 rounded-full bg-white shadow-sm"
     />
   </button>
 )
